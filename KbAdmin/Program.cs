@@ -1,8 +1,7 @@
 namespace KbAdmin.Client;
 
 using Extensions;
-using KbAdmin.Client.Components;
-using KbStore.ServiceDefaults;
+using Components;
 using Microsoft.FluentUI.AspNetCore.Components;
 
 
@@ -11,8 +10,6 @@ public class Program
     public static async Task Main(string[] args)
     {
         var builder = WebApplication.CreateBuilder(args);
-
-        builder.AddServiceDefaults();
 
         // Add services to the container.
         builder.Services.AddRazorComponents()
