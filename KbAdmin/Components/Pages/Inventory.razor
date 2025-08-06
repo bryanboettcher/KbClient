@@ -1,0 +1,43 @@
+﻿@page "/inventory"
+@using KbStoreApiClient
+@using KbStoreApiClient.Models
+@using Microsoft.FluentUI.AspNetCore.Components
+@rendermode InteractiveServer
+@inject KbStoreApiClient ApiClient
+@inject NavigationManager NavManager
+
+
+<PageTitle>Inventory Management</PageTitle>
+
+<h1>Stock Items</h1>
+
+<hr />
+<h2>Existing Inventory</h2>
+
+<FluentDataGrid
+ItemsProvider="RefreshItemsAsync"
+Virtualize="true"
+DisplayMode="DataGridDisplayMode.Table"
+GenerateHeader="GenerateHeaderOption.Sticky"
+TGridItem="InventoryModel">
+
+</FluentDataGrid>
+<FluentPaginator State="@pagination" />
+
+@code {
+    PaginationState pagination = new() { ItemsPerPage = 25 };
+
+    private async ValueTask<GridItemsProviderResult<InventoryModel>> RefreshItemsAsync(GridItemsProviderRequest<InventoryModel> request)
+    {
+        var results = await ApiClient.Inventory.GetAsync(conf =>
+        {
+            conf.QueryParameters.Page = pagination.CurrentPageIndex;
+            conf.QueryParameters.Size = pagination.ItemsPerPage;
+        }).ConfigureAwait(false);
+
+        var items = results?.Results ?? new List<InventoryModel>();
+        var total = results?.TotalItems ?? 0;
+
+        return GridItemsProviderResult.From(items, total);
+    }
+}

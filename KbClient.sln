@@ -1,0 +1,36 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.13.35818.85 d17.13
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "KbStore.ApiClient", "ApiClient\KbStore.ApiClient.csproj", "{0BEB7268-FC53-5F5F-AE61-7D65A4CB1C7B}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "KbAdmin.Client", "KbAdmin\KbAdmin.Client.csproj", "{3AD0D8DD-610A-8259-9D3A-9149E0086F7E}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{02EA681E-C7D8-13C7-8484-4AC65E1B71E8}"
+	ProjectSection(SolutionItems) = preProject
+		Generate-KiotaClient.ps1 = Generate-KiotaClient.ps1
+	EndProjectSection
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{0BEB7268-FC53-5F5F-AE61-7D65A4CB1C7B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0BEB7268-FC53-5F5F-AE61-7D65A4CB1C7B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0BEB7268-FC53-5F5F-AE61-7D65A4CB1C7B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0BEB7268-FC53-5F5F-AE61-7D65A4CB1C7B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3AD0D8DD-610A-8259-9D3A-9149E0086F7E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3AD0D8DD-610A-8259-9D3A-9149E0086F7E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3AD0D8DD-610A-8259-9D3A-9149E0086F7E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3AD0D8DD-610A-8259-9D3A-9149E0086F7E}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {3F4C7C04-6204-49F0-AC67-BEB4F5232C92}
+	EndGlobalSection
+EndGlobal
