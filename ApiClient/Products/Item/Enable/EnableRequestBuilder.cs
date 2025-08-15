@@ -9,53 +9,53 @@ using System.IO;
 using System.Threading.Tasks;
 using System.Threading;
 using System;
-namespace ApiClient.Inventory.Item.Decrease.Item
+namespace ApiClient.Products.Item.Enable
 {
     /// <summary>
-    /// Builds and executes requests for operations under \inventory\{id}\decrease\{quantity}
+    /// Builds and executes requests for operations under \products\{id}\enable
     /// </summary>
     [global::System.CodeDom.Compiler.GeneratedCode("Kiota", "1.0.0")]
-    public partial class WithQuantityItemRequestBuilder : BaseRequestBuilder
+    public partial class EnableRequestBuilder : BaseRequestBuilder
     {
         /// <summary>
-        /// Instantiates a new <see cref="global::ApiClient.Inventory.Item.Decrease.Item.WithQuantityItemRequestBuilder"/> and sets the default values.
+        /// Instantiates a new <see cref="global::ApiClient.Products.Item.Enable.EnableRequestBuilder"/> and sets the default values.
         /// </summary>
         /// <param name="pathParameters">Path parameters for the request</param>
         /// <param name="requestAdapter">The request adapter to use to execute the requests.</param>
-        public WithQuantityItemRequestBuilder(Dictionary<string, object> pathParameters, IRequestAdapter requestAdapter) : base(requestAdapter, "{+baseurl}/inventory/{id}/decrease/{quantity}", pathParameters)
+        public EnableRequestBuilder(Dictionary<string, object> pathParameters, IRequestAdapter requestAdapter) : base(requestAdapter, "{+baseurl}/products/{id}/enable", pathParameters)
         {
         }
         /// <summary>
-        /// Instantiates a new <see cref="global::ApiClient.Inventory.Item.Decrease.Item.WithQuantityItemRequestBuilder"/> and sets the default values.
+        /// Instantiates a new <see cref="global::ApiClient.Products.Item.Enable.EnableRequestBuilder"/> and sets the default values.
         /// </summary>
         /// <param name="rawUrl">The raw URL to use for the request builder.</param>
         /// <param name="requestAdapter">The request adapter to use to execute the requests.</param>
-        public WithQuantityItemRequestBuilder(string rawUrl, IRequestAdapter requestAdapter) : base(requestAdapter, "{+baseurl}/inventory/{id}/decrease/{quantity}", rawUrl)
+        public EnableRequestBuilder(string rawUrl, IRequestAdapter requestAdapter) : base(requestAdapter, "{+baseurl}/products/{id}/enable", rawUrl)
         {
         }
-        /// <returns>A <see cref="global::ApiClient.Models.InventoryModel"/></returns>
+        /// <returns>A <see cref="global::ApiClient.Models.ProductModel"/></returns>
         /// <param name="cancellationToken">Cancellation token to use when cancelling requests</param>
         /// <param name="requestConfiguration">Configuration for the request such as headers, query parameters, and middleware options.</param>
         /// <exception cref="global::ApiClient.Models.ProblemDetails">When receiving a 400 status code</exception>
-        /// <exception cref="global::ApiClient.Models.ProblemDetails">When receiving a 409 status code</exception>
+        /// <exception cref="global::ApiClient.Models.ProblemDetails">When receiving a 404 status code</exception>
         /// <exception cref="global::ApiClient.Models.ProblemDetails">When receiving a 500 status code</exception>
 #if NETSTANDARD2_1_OR_GREATER || NETCOREAPP3_1_OR_GREATER
 #nullable enable
-        public async Task<global::ApiClient.Models.InventoryModel?> PatchAsync(Action<RequestConfiguration<DefaultQueryParameters>>? requestConfiguration = default, CancellationToken cancellationToken = default)
+        public async Task<global::ApiClient.Models.ProductModel?> PatchAsync(Action<RequestConfiguration<DefaultQueryParameters>>? requestConfiguration = default, CancellationToken cancellationToken = default)
         {
 #nullable restore
 #else
-        public async Task<global::ApiClient.Models.InventoryModel> PatchAsync(Action<RequestConfiguration<DefaultQueryParameters>> requestConfiguration = default, CancellationToken cancellationToken = default)
+        public async Task<global::ApiClient.Models.ProductModel> PatchAsync(Action<RequestConfiguration<DefaultQueryParameters>> requestConfiguration = default, CancellationToken cancellationToken = default)
         {
 #endif
             var requestInfo = ToPatchRequestInformation(requestConfiguration);
             var errorMapping = new Dictionary<string, ParsableFactory<IParsable>>
             {
                 { "400", global::ApiClient.Models.ProblemDetails.CreateFromDiscriminatorValue },
-                { "409", global::ApiClient.Models.ProblemDetails.CreateFromDiscriminatorValue },
+                { "404", global::ApiClient.Models.ProblemDetails.CreateFromDiscriminatorValue },
                 { "500", global::ApiClient.Models.ProblemDetails.CreateFromDiscriminatorValue },
             };
-            return await RequestAdapter.SendAsync<global::ApiClient.Models.InventoryModel>(requestInfo, global::ApiClient.Models.InventoryModel.CreateFromDiscriminatorValue, errorMapping, cancellationToken).ConfigureAwait(false);
+            return await RequestAdapter.SendAsync<global::ApiClient.Models.ProductModel>(requestInfo, global::ApiClient.Models.ProductModel.CreateFromDiscriminatorValue, errorMapping, cancellationToken).ConfigureAwait(false);
         }
         /// <returns>A <see cref="RequestInformation"/></returns>
         /// <param name="requestConfiguration">Configuration for the request such as headers, query parameters, and middleware options.</param>
@@ -76,18 +76,18 @@ namespace ApiClient.Inventory.Item.Decrease.Item
         /// <summary>
         /// Returns a request builder with the provided arbitrary URL. Using this method means any other path or query parameters are ignored.
         /// </summary>
-        /// <returns>A <see cref="global::ApiClient.Inventory.Item.Decrease.Item.WithQuantityItemRequestBuilder"/></returns>
+        /// <returns>A <see cref="global::ApiClient.Products.Item.Enable.EnableRequestBuilder"/></returns>
         /// <param name="rawUrl">The raw URL to use for the request builder.</param>
-        public global::ApiClient.Inventory.Item.Decrease.Item.WithQuantityItemRequestBuilder WithUrl(string rawUrl)
+        public global::ApiClient.Products.Item.Enable.EnableRequestBuilder WithUrl(string rawUrl)
         {
-            return new global::ApiClient.Inventory.Item.Decrease.Item.WithQuantityItemRequestBuilder(rawUrl, RequestAdapter);
+            return new global::ApiClient.Products.Item.Enable.EnableRequestBuilder(rawUrl, RequestAdapter);
         }
         /// <summary>
         /// Configuration for the request such as headers, query parameters, and middleware options.
         /// </summary>
         [Obsolete("This class is deprecated. Please use the generic RequestConfiguration class generated by the generator.")]
         [global::System.CodeDom.Compiler.GeneratedCode("Kiota", "1.0.0")]
-        public partial class WithQuantityItemRequestBuilderPatchRequestConfiguration : RequestConfiguration<DefaultQueryParameters>
+        public partial class EnableRequestBuilderPatchRequestConfiguration : RequestConfiguration<DefaultQueryParameters>
         {
         }
     }

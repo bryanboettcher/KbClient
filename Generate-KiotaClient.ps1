@@ -50,11 +50,11 @@ param(
     
     [Parameter(Mandatory=$false, HelpMessage="Output directory for generated client")]
     [ValidateNotNullOrEmpty()]
-    [string]$OutputPath = "GeneratedClient",
+    [string]$OutputPath = "ApiClient",
     
     [Parameter(Mandatory=$false, HelpMessage="Name for the generated client class")]
     [ValidatePattern('^[A-Za-z][A-Za-z0-9\.]*$')]
-    [string]$ClientName = "KbStore.ApiClient",
+    [string]$ClientName = "ApiClient",
 
     [Parameter(Mandatory=$false, HelpMessage="Overwrite existing output directory")]
     [switch]$Force,

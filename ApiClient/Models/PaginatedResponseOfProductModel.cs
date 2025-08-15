@@ -9,45 +9,41 @@ namespace ApiClient.Models
 {
     [global::System.CodeDom.Compiler.GeneratedCode("Kiota", "1.0.0")]
     #pragma warning disable CS1591
-    public partial class CreateInventoryPayload : IAdditionalDataHolder, IParsable
+    public partial class PaginatedResponseOfProductModel : IAdditionalDataHolder, IParsable
     #pragma warning restore CS1591
     {
         /// <summary>Stores additional data not described in the OpenAPI description found when deserializing. Can be used for serialization as well.</summary>
         public IDictionary<string, object> AdditionalData { get; set; }
-        /// <summary>The description property</summary>
+        /// <summary>The page property</summary>
+        public int? Page { get; set; }
+        /// <summary>The results property</summary>
 #if NETSTANDARD2_1_OR_GREATER || NETCOREAPP3_1_OR_GREATER
 #nullable enable
-        public string? Description { get; set; }
+        public List<global::ApiClient.Models.ProductModel>? Results { get; set; }
 #nullable restore
 #else
-        public string Description { get; set; }
+        public List<global::ApiClient.Models.ProductModel> Results { get; set; }
 #endif
-        /// <summary>The partNumber property</summary>
-#if NETSTANDARD2_1_OR_GREATER || NETCOREAPP3_1_OR_GREATER
-#nullable enable
-        public string? PartNumber { get; set; }
-#nullable restore
-#else
-        public string PartNumber { get; set; }
-#endif
-        /// <summary>The stockQuantity property</summary>
-        public int? StockQuantity { get; set; }
+        /// <summary>The size property</summary>
+        public int? Size { get; set; }
+        /// <summary>The totalItems property</summary>
+        public int? TotalItems { get; set; }
         /// <summary>
-        /// Instantiates a new <see cref="global::ApiClient.Models.CreateInventoryPayload"/> and sets the default values.
+        /// Instantiates a new <see cref="global::ApiClient.Models.PaginatedResponseOfProductModel"/> and sets the default values.
         /// </summary>
-        public CreateInventoryPayload()
+        public PaginatedResponseOfProductModel()
         {
             AdditionalData = new Dictionary<string, object>();
         }
         /// <summary>
         /// Creates a new instance of the appropriate class based on discriminator value
         /// </summary>
-        /// <returns>A <see cref="global::ApiClient.Models.CreateInventoryPayload"/></returns>
+        /// <returns>A <see cref="global::ApiClient.Models.PaginatedResponseOfProductModel"/></returns>
         /// <param name="parseNode">The parse node to use to read the discriminator value and create the object</param>
-        public static global::ApiClient.Models.CreateInventoryPayload CreateFromDiscriminatorValue(IParseNode parseNode)
+        public static global::ApiClient.Models.PaginatedResponseOfProductModel CreateFromDiscriminatorValue(IParseNode parseNode)
         {
             _ = parseNode ?? throw new ArgumentNullException(nameof(parseNode));
-            return new global::ApiClient.Models.CreateInventoryPayload();
+            return new global::ApiClient.Models.PaginatedResponseOfProductModel();
         }
         /// <summary>
         /// The deserialization information for the current model
@@ -57,9 +53,10 @@ namespace ApiClient.Models
         {
             return new Dictionary<string, Action<IParseNode>>
             {
-                { "description", n => { Description = n.GetStringValue(); } },
-                { "partNumber", n => { PartNumber = n.GetStringValue(); } },
-                { "stockQuantity", n => { StockQuantity = n.GetIntValue(); } },
+                { "page", n => { Page = n.GetIntValue(); } },
+                { "results", n => { Results = n.GetCollectionOfObjectValues<global::ApiClient.Models.ProductModel>(global::ApiClient.Models.ProductModel.CreateFromDiscriminatorValue)?.AsList(); } },
+                { "size", n => { Size = n.GetIntValue(); } },
+                { "totalItems", n => { TotalItems = n.GetIntValue(); } },
             };
         }
         /// <summary>
@@ -69,9 +66,10 @@ namespace ApiClient.Models
         public virtual void Serialize(ISerializationWriter writer)
         {
             _ = writer ?? throw new ArgumentNullException(nameof(writer));
-            writer.WriteStringValue("description", Description);
-            writer.WriteStringValue("partNumber", PartNumber);
-            writer.WriteIntValue("stockQuantity", StockQuantity);
+            writer.WriteIntValue("page", Page);
+            writer.WriteCollectionOfObjectValues<global::ApiClient.Models.ProductModel>("results", Results);
+            writer.WriteIntValue("size", Size);
+            writer.WriteIntValue("totalItems", TotalItems);
             writer.WriteAdditionalData(AdditionalData);
         }
     }

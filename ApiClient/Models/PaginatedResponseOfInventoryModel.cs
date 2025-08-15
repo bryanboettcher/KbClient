@@ -5,7 +5,7 @@ using Microsoft.Kiota.Abstractions.Serialization;
 using System.Collections.Generic;
 using System.IO;
 using System;
-namespace KbStoreApiClient.Models
+namespace ApiClient.Models
 {
     [global::System.CodeDom.Compiler.GeneratedCode("Kiota", "1.0.0")]
     #pragma warning disable CS1591
@@ -19,17 +19,17 @@ namespace KbStoreApiClient.Models
         /// <summary>The results property</summary>
 #if NETSTANDARD2_1_OR_GREATER || NETCOREAPP3_1_OR_GREATER
 #nullable enable
-        public List<global::KbStoreApiClient.Models.InventoryModel>? Results { get; set; }
+        public List<global::ApiClient.Models.InventoryModel>? Results { get; set; }
 #nullable restore
 #else
-        public List<global::KbStoreApiClient.Models.InventoryModel> Results { get; set; }
+        public List<global::ApiClient.Models.InventoryModel> Results { get; set; }
 #endif
         /// <summary>The size property</summary>
         public int? Size { get; set; }
         /// <summary>The totalItems property</summary>
         public int? TotalItems { get; set; }
         /// <summary>
-        /// Instantiates a new <see cref="global::KbStoreApiClient.Models.PaginatedResponseOfInventoryModel"/> and sets the default values.
+        /// Instantiates a new <see cref="global::ApiClient.Models.PaginatedResponseOfInventoryModel"/> and sets the default values.
         /// </summary>
         public PaginatedResponseOfInventoryModel()
         {
@@ -38,12 +38,12 @@ namespace KbStoreApiClient.Models
         /// <summary>
         /// Creates a new instance of the appropriate class based on discriminator value
         /// </summary>
-        /// <returns>A <see cref="global::KbStoreApiClient.Models.PaginatedResponseOfInventoryModel"/></returns>
+        /// <returns>A <see cref="global::ApiClient.Models.PaginatedResponseOfInventoryModel"/></returns>
         /// <param name="parseNode">The parse node to use to read the discriminator value and create the object</param>
-        public static global::KbStoreApiClient.Models.PaginatedResponseOfInventoryModel CreateFromDiscriminatorValue(IParseNode parseNode)
+        public static global::ApiClient.Models.PaginatedResponseOfInventoryModel CreateFromDiscriminatorValue(IParseNode parseNode)
         {
             _ = parseNode ?? throw new ArgumentNullException(nameof(parseNode));
-            return new global::KbStoreApiClient.Models.PaginatedResponseOfInventoryModel();
+            return new global::ApiClient.Models.PaginatedResponseOfInventoryModel();
         }
         /// <summary>
         /// The deserialization information for the current model
@@ -54,7 +54,7 @@ namespace KbStoreApiClient.Models
             return new Dictionary<string, Action<IParseNode>>
             {
                 { "page", n => { Page = n.GetIntValue(); } },
-                { "results", n => { Results = n.GetCollectionOfObjectValues<global::KbStoreApiClient.Models.InventoryModel>(global::KbStoreApiClient.Models.InventoryModel.CreateFromDiscriminatorValue)?.AsList(); } },
+                { "results", n => { Results = n.GetCollectionOfObjectValues<global::ApiClient.Models.InventoryModel>(global::ApiClient.Models.InventoryModel.CreateFromDiscriminatorValue)?.AsList(); } },
                 { "size", n => { Size = n.GetIntValue(); } },
                 { "totalItems", n => { TotalItems = n.GetIntValue(); } },
             };
@@ -67,7 +67,7 @@ namespace KbStoreApiClient.Models
         {
             _ = writer ?? throw new ArgumentNullException(nameof(writer));
             writer.WriteIntValue("page", Page);
-            writer.WriteCollectionOfObjectValues<global::KbStoreApiClient.Models.InventoryModel>("results", Results);
+            writer.WriteCollectionOfObjectValues<global::ApiClient.Models.InventoryModel>("results", Results);
             writer.WriteIntValue("size", Size);
             writer.WriteIntValue("totalItems", TotalItems);
             writer.WriteAdditionalData(AdditionalData);

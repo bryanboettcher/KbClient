@@ -1,29 +1,31 @@
-namespace KbAdmin.Client;
+using MudBlazor.Services;
+using KbAdmin.Client.Pages;
+using KbAdmin.Components;
 
-using Extensions;
-using Components;
-using Microsoft.FluentUI.AspNetCore.Components;
-
+namespace KbAdmin;
 
 public class Program
 {
-    public static async Task Main(string[] args)
+    public static void Main(string[] args)
     {
         var builder = WebApplication.CreateBuilder(args);
 
+        // Add MudBlazor services
+        builder.Services.AddMudServices();
+
         // Add services to the container.
         builder.Services.AddRazorComponents()
-            .AddInteractiveServerComponents();
-
-        builder.Services.AddFluentUIComponents();
-
-        builder.Services.AddApiConnectionOptions();
-        builder.Services.AddKiotaServices();
+            .AddInteractiveServerComponents()
+            .AddInteractiveWebAssemblyComponents();
 
         var app = builder.Build();
 
         // Configure the HTTP request pipeline.
-        if (!app.Environment.IsDevelopment())
+        if (app.Environment.IsDevelopment())
+        {
+            app.UseWebAssemblyDebugging();
+        }
+        else
         {
             app.UseExceptionHandler("/Error");
             // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
@@ -36,8 +38,10 @@ public class Program
 
         app.MapStaticAssets();
         app.MapRazorComponents<App>()
-            .AddInteractiveServerRenderMode();
+            .AddInteractiveServerRenderMode()
+            .AddInteractiveWebAssemblyRenderMode()
+            .AddAdditionalAssemblies(typeof(Client._Imports).Assembly);
 
-        await app.RunAsync();
+        app.Run();
     }
 }
