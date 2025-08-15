@@ -8,7 +8,6 @@
 
 
   <ItemGroup>
-    <ProjectReference Include="..\KbAdmin.Client\KbAdmin.Client.csproj" />
     <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.Server" Version="9.*" />
   </ItemGroup>
 

@@ -50,6 +50,8 @@ namespace ApiClient.Models
 #endif
         /// <summary>The productId property</summary>
         public Guid? ProductId { get; set; }
+        /// <summary>The quantity property</summary>
+        public int? Quantity { get; set; }
         /// <summary>The sku property</summary>
 #if NETSTANDARD2_1_OR_GREATER || NETCOREAPP3_1_OR_GREATER
 #nullable enable
@@ -96,6 +98,7 @@ namespace ApiClient.Models
                 { "leadTime", n => { LeadTime = n.GetStringValue(); } },
                 { "name", n => { Name = n.GetStringValue(); } },
                 { "productId", n => { ProductId = n.GetGuidValue(); } },
+                { "quantity", n => { Quantity = n.GetIntValue(); } },
                 { "sku", n => { Sku = n.GetStringValue(); } },
                 { "stockThreshold", n => { StockThreshold = n.GetIntValue(); } },
                 { "updatedOn", n => { UpdatedOn = n.GetDateTimeOffsetValue(); } },
@@ -117,6 +120,7 @@ namespace ApiClient.Models
             writer.WriteStringValue("leadTime", LeadTime);
             writer.WriteStringValue("name", Name);
             writer.WriteGuidValue("productId", ProductId);
+            writer.WriteIntValue("quantity", Quantity);
             writer.WriteStringValue("sku", Sku);
             writer.WriteIntValue("stockThreshold", StockThreshold);
             writer.WriteDateTimeOffsetValue("updatedOn", UpdatedOn);

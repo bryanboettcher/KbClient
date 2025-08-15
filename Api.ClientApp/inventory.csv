@@ -1,0 +1,28 @@
+﻿"PartNumber","Description",StockQuantity
+"BLDC_MOTOR","Brushless DC Motor for Drones (2205, 2300KV)",500
+"ESC_30A","30A Electronic Speed Controller",400
+"PROP_5IN","5-Inch Carbon Fiber Propeller",1000
+"LIPO_1500","LiPo Battery 3S 1500mAh 11.1V",300
+"CHARGER_BAL","LiPo Balance Charger",150
+"RADIO_6CH","6-Channel 2.4GHz Radio Transmitter",200
+"RECEIVER_6CH","6-Channel Receiver",250
+"SERVO_9G","9g Micro Servo Motor",800
+"TIRES_RC_CAR","Off-road RC Car Tires (Set of 4)",350
+"GEARSET_48P","48-Pitch Pinion Gear Set",500
+"FRAME_DRONE_250","250mm Carbon Fiber Drone Frame",120
+"FRAME_DRONE_450","450mm Carbon Fiber Drone Frame",80
+"CAMERA_FP","FPV Camera 800TVL",300
+"VTX_5G8","5.8GHz Video Transmitter",250
+"VRX_5G8","5.8GHz Video Receiver",250
+"ANTENNA_OMNI","5.8GHz Omni-directional Antenna",600
+"TOOLS_RC","RC Hobby Tool Kit",150
+"SCREW_SET","Assorted Screw Set for Drones and RC Cars",900
+"LED_STRIP","Programmable LED Strip (30cm)",400
+"BLADE_GUARD","Propeller Blade Guards (Set of 4)",300
+"BEARING_SET","Ball Bearing Set for RC Applications",500
+"MOTOR_MOUNT","Motor Mount for Brushless Motors",350
+"HEATSHRINK","Heat Shrink Tubing Assortment",1000
+"SWITCH_TOGGLE","Mini Toggle Switch (On/Off)",700
+"CONNECTOR_XT60","XT60 Battery Connector (Male/Female Pair)",900
+"WIRE_SILIC_14AWG","14AWG Silicone Wire (1m)",800
+"FC_F405","Flight Controller F4 Series",220

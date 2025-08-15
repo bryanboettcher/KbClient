@@ -6,6 +6,7 @@ using ApiClient.Products.Item.Disable;
 using ApiClient.Products.Item.Enable;
 using ApiClient.Products.Item.LeadTime;
 using ApiClient.Products.Item.Name;
+using ApiClient.Products.Item.Quantity;
 using ApiClient.Products.Item.StockThreshold;
 using Microsoft.Kiota.Abstractions.Extensions;
 using Microsoft.Kiota.Abstractions.Serialization;
@@ -47,6 +48,11 @@ namespace ApiClient.Products.Item
         public global::ApiClient.Products.Item.Name.NameRequestBuilder Name
         {
             get => new global::ApiClient.Products.Item.Name.NameRequestBuilder(PathParameters, RequestAdapter);
+        }
+        /// <summary>The quantity property</summary>
+        public global::ApiClient.Products.Item.Quantity.QuantityRequestBuilder Quantity
+        {
+            get => new global::ApiClient.Products.Item.Quantity.QuantityRequestBuilder(PathParameters, RequestAdapter);
         }
         /// <summary>The stockThreshold property</summary>
         public global::ApiClient.Products.Item.StockThreshold.StockThresholdRequestBuilder StockThreshold

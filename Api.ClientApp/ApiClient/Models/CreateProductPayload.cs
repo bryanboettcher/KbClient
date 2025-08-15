@@ -40,6 +40,8 @@ namespace ApiClient.Models
 #else
         public string Name { get; set; }
 #endif
+        /// <summary>The quantity property</summary>
+        public int? Quantity { get; set; }
         /// <summary>The sku property</summary>
 #if NETSTANDARD2_1_OR_GREATER || NETCOREAPP3_1_OR_GREATER
 #nullable enable
@@ -79,6 +81,7 @@ namespace ApiClient.Models
                 { "inventoryId", n => { InventoryId = n.GetGuidValue(); } },
                 { "leadTime", n => { LeadTime = n.GetStringValue(); } },
                 { "name", n => { Name = n.GetStringValue(); } },
+                { "quantity", n => { Quantity = n.GetIntValue(); } },
                 { "sku", n => { Sku = n.GetStringValue(); } },
                 { "stockThreshold", n => { StockThreshold = n.GetIntValue(); } },
             };
@@ -94,6 +97,7 @@ namespace ApiClient.Models
             writer.WriteGuidValue("inventoryId", InventoryId);
             writer.WriteStringValue("leadTime", LeadTime);
             writer.WriteStringValue("name", Name);
+            writer.WriteIntValue("quantity", Quantity);
             writer.WriteStringValue("sku", Sku);
             writer.WriteIntValue("stockThreshold", StockThreshold);
             writer.WriteAdditionalData(AdditionalData);
