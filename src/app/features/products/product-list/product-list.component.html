@@ -1,0 +1,208 @@
+<div class="product-list-container">
+  <div class="header">
+    <h1>Products</h1>
+  </div>
+
+  <!-- Filters Section -->
+  <div class="filters">
+    <div class="filter-group">
+      <label for="search">Search</label>
+      <input
+        id="search"
+        type="text"
+        [formControl]="searchControl"
+        placeholder="Search by SKU or name..."
+        aria-label="Search products by SKU or name"
+      />
+    </div>
+
+    <div class="filter-group">
+      <label for="status">Status</label>
+      <select
+        id="status"
+        (change)="onStatusFilterChange($event)"
+        aria-label="Filter products by status"
+      >
+        <option value="all">All</option>
+        <option value="enabled">Enabled</option>
+        <option value="disabled">Disabled</option>
+        <option value="discontinued">Discontinued</option>
+      </select>
+    </div>
+  </div>
+
+  <!-- Error State -->
+  <div *ngIf="error" class="error-state" role="alert">
+    <div class="error-icon">⚠</div>
+    <div class="error-content">
+      <h3>Error Loading Products</h3>
+      <p>{{ error }}</p>
+      <button (click)="loadProducts()" class="btn-retry">Try Again</button>
+    </div>
+  </div>
+
+  <!-- Loading State -->
+  <div *ngIf="loading && !error" class="loading-state" aria-live="polite" aria-busy="true">
+    <div class="spinner"></div>
+    <p>Loading products...</p>
+  </div>
+
+  <!-- Empty State -->
+  <div *ngIf="!loading && !error && products.length === 0" class="empty-state">
+    <div class="empty-icon">📦</div>
+    <h3>No Products Found</h3>
+    <p>Try adjusting your filters or search criteria.</p>
+  </div>
+
+  <!-- Products Table -->
+  <div *ngIf="!loading && !error && products.length > 0" class="table-container">
+    <table class="products-table">
+      <thead>
+        <tr>
+          <th
+            (click)="onSort('sku')"
+            class="sortable"
+            [class.active]="sortBy === 'sku'"
+            tabindex="0"
+            role="button"
+            aria-label="Sort by SKU"
+          >
+            SKU
+            <span class="sort-indicator" *ngIf="sortBy === 'sku'">
+              {{ sortOrder === 'asc' ? '▲' : '▼' }}
+            </span>
+          </th>
+          <th
+            (click)="onSort('name')"
+            class="sortable"
+            [class.active]="sortBy === 'name'"
+            tabindex="0"
+            role="button"
+            aria-label="Sort by name"
+          >
+            Name
+            <span class="sort-indicator" *ngIf="sortBy === 'name'">
+              {{ sortOrder === 'asc' ? '▲' : '▼' }}
+            </span>
+          </th>
+          <th
+            (click)="onSort('quantity')"
+            class="sortable"
+            [class.active]="sortBy === 'quantity'"
+            tabindex="0"
+            role="button"
+            aria-label="Sort by quantity"
+          >
+            Quantity
+            <span class="sort-indicator" *ngIf="sortBy === 'quantity'">
+              {{ sortOrder === 'asc' ? '▲' : '▼' }}
+            </span>
+          </th>
+          <th>Status</th>
+          <th
+            (click)="onSort('updatedOn')"
+            class="sortable"
+            [class.active]="sortBy === 'updatedOn'"
+            tabindex="0"
+            role="button"
+            aria-label="Sort by last updated"
+          >
+            Updated
+            <span class="sort-indicator" *ngIf="sortBy === 'updatedOn'">
+              {{ sortOrder === 'asc' ? '▲' : '▼' }}
+            </span>
+          </th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let product of products; trackBy: trackByProductId" class="product-row">
+          <td class="sku-cell">{{ product.sku }}</td>
+          <td class="name-cell">{{ product.name || 'N/A' }}</td>
+          <td class="quantity-cell">{{ product.quantity }}</td>
+          <td class="status-cell">
+            <span class="status-badge" [ngClass]="getStatusBadgeClass(product)">
+              {{ getStatusText(product) }}
+            </span>
+          </td>
+          <td class="date-cell">{{ formatDate(product.updatedOn) }}</td>
+          <td class="actions-cell">
+            <button
+              class="action-btn"
+              title="Coming in F-P3"
+              disabled
+              aria-label="View product details (coming soon)"
+            >
+              👁
+            </button>
+            <button
+              class="action-btn"
+              title="Coming in F-P4"
+              disabled
+              aria-label="Edit product (coming soon)"
+            >
+              ✏️
+            </button>
+            <button
+              class="action-btn"
+              title="Coming in F-P5"
+              disabled
+              aria-label="Toggle enable/disable (coming soon)"
+            >
+              🔄
+            </button>
+            <button
+              class="action-btn"
+              title="Coming in F-P6"
+              disabled
+              aria-label="Delete product (coming soon)"
+            >
+              🗑
+            </button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Pagination -->
+  <div
+    *ngIf="!loading && !error && products.length > 0"
+    class="pagination"
+    role="navigation"
+    aria-label="Pagination"
+  >
+    <button
+      (click)="onPageChange(currentPage - 1)"
+      [disabled]="currentPage === 0"
+      class="pagination-btn"
+      aria-label="Previous page"
+    >
+      Previous
+    </button>
+
+    <button
+      *ngFor="let page of pageNumbers"
+      (click)="onPageChange(page)"
+      [class.active]="currentPage === page"
+      class="pagination-btn page-number"
+      [attr.aria-label]="'Go to page ' + (page + 1)"
+      [attr.aria-current]="currentPage === page ? 'page' : null"
+    >
+      {{ page + 1 }}
+    </button>
+
+    <button
+      (click)="onPageChange(currentPage + 1)"
+      [disabled]="currentPage >= totalPages - 1"
+      class="pagination-btn"
+      aria-label="Next page"
+    >
+      Next
+    </button>
+
+    <span class="pagination-info" aria-live="polite">
+      Showing {{ products.length }} of {{ totalItems }} products
+    </span>
+  </div>
+</div>
