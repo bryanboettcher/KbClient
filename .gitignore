@@ -1,33 +1,49 @@
+# Angular
+/dist
+/tmp
+/out-tsc
+/bazel-out
 
-#Ignore thumbnails created by Windows
-Thumbs.db
-#Ignore files built by Visual Studio
-*.obj
-*.exe
-*.pdb
-*.user
-*.aps
-*.pch
-*.vspscc
-*_i.c
-*_p.c
-*.ncb
-*.suo
-*.tlb
-*.tlh
-*.bak
-*.cache
-*.ilk
-*.log
-[Bb]in
-[Dd]ebug*/
-*.lib
-*.sbr
-obj/
-[Rr]elease*/
-_ReSharper*/
-[Tt]est[Rr]esult*
-.vs/
+# Node
+/node_modules
+npm-debug.log
+yarn-error.log
+
+# IDEs and editors
 .idea/
-#Nuget packages folder
-packages/
+.project
+.classpath
+.c9/
+*.launch
+.settings/
+*.sublime-workspace
+.vscode/*
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+.history/*
+
+# Misc
+/.angular/cache
+.sass-cache/
+/connect.lock
+/coverage
+/libpeerconnection.log
+testem.log
+/typings
+
+# Testing
+/coverage
+*.log
+
+# Husky
+.husky/_
+
+# System files
+.DS_Store
+Thumbs.db
+
+# Environment
+.env
+.env.local
