@@ -1,0 +1,47 @@
+<div class="welcome-container">
+  <div class="welcome-card">
+    <div class="logo-section">
+      <div class="logo-circle">
+        <span class="logo-text">KB</span>
+      </div>
+    </div>
+
+    <h1 class="title">{{ title }}</h1>
+    <p class="subtitle">{{ subtitle }}</p>
+
+    <div class="feature-grid">
+      <div class="feature-card">
+        <div class="feature-icon">📦</div>
+        <h3>Product Management</h3>
+        <p>Manage your RC hobby shop products catalog</p>
+      </div>
+
+      <div class="feature-card">
+        <div class="feature-icon">📊</div>
+        <h3>Inventory Control</h3>
+        <p>Track and manage stock levels efficiently</p>
+      </div>
+
+      <div class="feature-card">
+        <div class="feature-icon">🔍</div>
+        <h3>Real-time Updates</h3>
+        <p>Monitor inventory changes in real-time</p>
+      </div>
+
+      <div class="feature-card">
+        <div class="feature-icon">📈</div>
+        <h3>Reports & Analytics</h3>
+        <p>Coming soon - insights into your business</p>
+      </div>
+    </div>
+
+    <div class="quick-actions">
+      <button class="btn btn-primary" routerLink="/products">Manage Products</button>
+      <button class="btn btn-secondary" routerLink="/inventory">Manage Inventory</button>
+    </div>
+
+    <footer class="welcome-footer">
+      <p>&copy; {{ currentYear }} KbStore. All rights reserved.</p>
+    </footer>
+  </div>
+</div>
