@@ -15,6 +15,24 @@
     "prepare": "husky"
   },
   "private": true,
+  "overrides": {
+    "@angular-devkit/build-angular": {
+      "jest": "$jest",
+      "jest-environment-jsdom": "$jest-environment-jsdom"
+    },
+    "@testing-library/angular": {
+      "@angular/animations": "$@angular/animations",
+      "@angular/common": "$@angular/common",
+      "@angular/compiler": "$@angular/compiler",
+      "@angular/core": "$@angular/core",
+      "@angular/forms": "$@angular/forms",
+      "@angular/platform-browser": "$@angular/platform-browser",
+      "@angular/platform-browser-dynamic": "$@angular/platform-browser-dynamic",
+      "@angular/router": "$@angular/router",
+      "rxjs": "$rxjs",
+      "tslib": "$tslib"
+    }
+  },
   "dependencies": {
     "@angular/animations": "^19.0.0",
     "@angular/common": "^19.0.0",
