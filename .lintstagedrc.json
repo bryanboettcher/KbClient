@@ -1,0 +1,4 @@
+{
+  "*.ts": ["jest --bail --findRelatedTests --passWithNoTests"],
+  "*.{ts,html,scss,json}": ["prettier --write"]
+}

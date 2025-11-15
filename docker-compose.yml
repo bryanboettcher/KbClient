@@ -1,0 +1,15 @@
+version: '3.8'
+
+services:
+  kb-admin:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: kbstore-admin:latest
+    container_name: kbstore-admin
+    ports:
+      - "8080:80"
+    environment:
+      # API URL for the KbStore backend
+      API_URL: ${API_URL:-http://localhost:5000/api}
+    restart: unless-stopped
