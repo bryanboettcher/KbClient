@@ -5,6 +5,8 @@
   "scripts": {
     "ng": "ng",
     "start": "ng serve",
+    "start:dev": "npm-run-all --parallel server start",
+    "server": "json-server server/db.js --middlewares server/middleware.js --routes server/routes.json --port 5000",
     "build": "ng build",
     "watch": "ng build --watch --configuration development",
     "test": "jest",
@@ -70,11 +72,21 @@
     "karma-coverage": "~2.2.1",
     "karma-jasmine": "~5.1.0",
     "karma-jasmine-html-reporter": "~2.1.0",
+    "json-server": "^0.17.4",
     "lint-staged": "^16.2.6",
     "msw": "^2.6.8",
+    "npm-run-all": "^4.1.5",
     "prettier": "^3.6.2",
     "ts-node": "^10.9.2",
     "typescript": "~5.8.3",
     "whatwg-fetch": "^3.6.20"
+  },
+  "msw": {
+    "workerDirectory": [
+      "src/assets"
+    ]
+  },
+  "optionalDependencies": {
+    "@rollup/rollup-linux-x64-gnu": "^4.53.2"
   }
 }
