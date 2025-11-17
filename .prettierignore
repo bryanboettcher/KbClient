@@ -1,0 +1,23 @@
+# Dependencies
+node_modules/
+
+# Build outputs
+dist/
+out-tsc/
+tmp/
+
+# Coverage reports
+coverage/
+
+# Angular cache
+.angular/
+
+# Package lock (auto-generated)
+package-lock.json
+
+# Generated files
+*.min.js
+*.min.css
+
+# Server data (JSON database files can have specific formatting)
+server/data/*.json
