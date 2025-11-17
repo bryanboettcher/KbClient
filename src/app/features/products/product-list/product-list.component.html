@@ -1,6 +1,12 @@
 <div class="product-list-container">
   <div class="header">
     <h1>Products</h1>
+    <p-button
+      routerLink="/products/new"
+      label="New Product"
+      icon="pi pi-plus"
+      styleClass="btn-primary"
+    ></p-button>
   </div>
 
   <!-- Filters Section -->
@@ -137,9 +143,8 @@
             </button>
             <button
               class="action-btn"
-              title="Coming in F-P4"
-              disabled
-              aria-label="Edit product (coming soon)"
+              [routerLink]="['/products', product.productId, 'edit']"
+              [attr.aria-label]="'Edit product ' + product.sku"
             >
               <span class="btn-icon">E</span>
             </button>

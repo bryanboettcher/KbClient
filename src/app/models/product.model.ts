@@ -29,16 +29,29 @@ export interface PaginatedResponse<T> {
 }
 
 export interface CreateProductPayload {
-  name: string;
-  description?: string;
-  sku?: string;
-  price?: number;
+  sku: string;
+  name: string | null;
+  dimensions: ProductDimensions | null;
+  quantity: number;
+  inventoryId: string | null;
+  stockThreshold: number | null;
+  leadTime: string | null;
+  isStocked: boolean;
+  isEnabled: boolean;
+  isAvailable: boolean;
 }
 
 export interface UpdateProductPayload {
-  name?: string;
-  description?: string;
-  price?: number;
+  sku?: string;
+  name?: string | null;
+  dimensions?: ProductDimensions | null;
+  quantity?: number;
+  inventoryId?: string | null;
+  stockThreshold?: number | null;
+  leadTime?: string | null;
+  isStocked?: boolean;
+  isEnabled?: boolean;
+  isAvailable?: boolean;
 }
 
 /**

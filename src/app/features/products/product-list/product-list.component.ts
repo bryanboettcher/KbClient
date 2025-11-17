@@ -7,6 +7,9 @@ import { ProductService } from '../../../services/product.service';
 import { Product, ProductQueryOptions } from '../../../models';
 import { NotificationService } from '../../../services/notification.service';
 
+// PrimeNG imports
+import { ButtonModule } from 'primeng/button';
+
 // Extended product with UI state for row-level actions
 interface ProductWithState extends Product {
   actionLoading?: boolean;
@@ -16,7 +19,7 @@ interface ProductWithState extends Product {
 @Component({
   selector: 'app-product-list',
   standalone: true,
-  imports: [CommonModule, RouterModule, FormsModule, ReactiveFormsModule],
+  imports: [CommonModule, RouterModule, FormsModule, ReactiveFormsModule, ButtonModule],
   templateUrl: './product-list.component.html',
   styleUrls: ['./product-list.component.scss']
 })

@@ -1,0 +1,266 @@
+<div class="container">
+  <p-card [header]="pageTitle">
+    <form
+      [formGroup]="form"
+      (ngSubmit)="onSubmit()"
+      class="p-fluid"
+      role="form"
+      [attr.aria-label]="pageTitle"
+    >
+      <!-- Loading overlay -->
+      <div
+        *ngIf="loading"
+        class="loading-overlay"
+        role="status"
+        aria-live="polite"
+        [attr.aria-busy]="loading"
+      >
+        <i class="pi pi-spinner pi-spin" style="font-size: 2rem" aria-hidden="true"></i>
+        <span class="sr-only">{{
+          mode === 'create' ? 'Creating product...' : 'Updating product...'
+        }}</span>
+      </div>
+
+      <!-- SKU Field (Required) -->
+      <div class="field">
+        <label for="sku" class="required-label">SKU</label>
+        <input
+          id="sku"
+          type="text"
+          pInputText
+          formControlName="sku"
+          [class.p-invalid]="isFieldInvalid('sku')"
+          placeholder="e.g., PLA-WHT-1KG"
+          aria-required="true"
+          [attr.aria-invalid]="isFieldInvalid('sku')"
+          aria-describedby="sku-error"
+        />
+        <small *ngIf="isFieldInvalid('sku')" id="sku-error" class="p-error">
+          {{ getFieldError('sku') }}
+        </small>
+      </div>
+
+      <!-- Name Field -->
+      <div class="field">
+        <label for="name">Name</label>
+        <input
+          id="name"
+          type="text"
+          pInputText
+          formControlName="name"
+          placeholder="e.g., PLA Filament - White 1kg"
+        />
+      </div>
+
+      <!-- Dimensions Group -->
+      <fieldset
+        formGroupName="dimensions"
+        class="dimensions-group"
+        role="group"
+        aria-labelledby="dimensions-legend"
+      >
+        <legend id="dimensions-legend">Dimensions</legend>
+        <div class="p-grid">
+          <div class="p-col-12 p-md-6 p-lg-3">
+            <div class="field">
+              <label for="width">Width</label>
+              <p-inputNumber
+                inputId="width"
+                formControlName="width"
+                mode="decimal"
+                [minFractionDigits]="0"
+                [maxFractionDigits]="2"
+                [min]="0"
+                placeholder="0.00"
+                suffix=" cm"
+                [attr.aria-invalid]="isFieldInvalid('dimensions.width')"
+                aria-describedby="width-error"
+              ></p-inputNumber>
+              <small *ngIf="isFieldInvalid('dimensions.width')" id="width-error" class="p-error">
+                {{ getFieldError('dimensions.width') }}
+              </small>
+            </div>
+          </div>
+
+          <div class="p-col-12 p-md-6 p-lg-3">
+            <div class="field">
+              <label for="length">Length</label>
+              <p-inputNumber
+                inputId="length"
+                formControlName="length"
+                mode="decimal"
+                [minFractionDigits]="0"
+                [maxFractionDigits]="2"
+                [min]="0"
+                placeholder="0.00"
+                suffix=" cm"
+                [attr.aria-invalid]="isFieldInvalid('dimensions.length')"
+                aria-describedby="length-error"
+              ></p-inputNumber>
+              <small *ngIf="isFieldInvalid('dimensions.length')" id="length-error" class="p-error">
+                {{ getFieldError('dimensions.length') }}
+              </small>
+            </div>
+          </div>
+
+          <div class="p-col-12 p-md-6 p-lg-3">
+            <div class="field">
+              <label for="height">Height</label>
+              <p-inputNumber
+                inputId="height"
+                formControlName="height"
+                mode="decimal"
+                [minFractionDigits]="0"
+                [maxFractionDigits]="2"
+                [min]="0"
+                placeholder="0.00"
+                suffix=" cm"
+                [attr.aria-invalid]="isFieldInvalid('dimensions.height')"
+                aria-describedby="height-error"
+              ></p-inputNumber>
+              <small *ngIf="isFieldInvalid('dimensions.height')" id="height-error" class="p-error">
+                {{ getFieldError('dimensions.height') }}
+              </small>
+            </div>
+          </div>
+
+          <div class="p-col-12 p-md-6 p-lg-3">
+            <div class="field">
+              <label for="weight">Weight</label>
+              <p-inputNumber
+                inputId="weight"
+                formControlName="weight"
+                mode="decimal"
+                [minFractionDigits]="0"
+                [maxFractionDigits]="2"
+                [min]="0"
+                placeholder="0.00"
+                suffix=" kg"
+                [attr.aria-invalid]="isFieldInvalid('dimensions.weight')"
+                aria-describedby="weight-error"
+              ></p-inputNumber>
+              <small *ngIf="isFieldInvalid('dimensions.weight')" id="weight-error" class="p-error">
+                {{ getFieldError('dimensions.weight') }}
+              </small>
+            </div>
+          </div>
+        </div>
+      </fieldset>
+
+      <!-- Quantity Field (Required) -->
+      <div class="field">
+        <label for="quantity" class="required-label">Quantity</label>
+        <p-inputNumber
+          inputId="quantity"
+          formControlName="quantity"
+          mode="decimal"
+          [minFractionDigits]="0"
+          [maxFractionDigits]="0"
+          [min]="0"
+          placeholder="0"
+          [class.p-invalid]="isFieldInvalid('quantity')"
+          aria-required="true"
+          [attr.aria-invalid]="isFieldInvalid('quantity')"
+          aria-describedby="quantity-error"
+        ></p-inputNumber>
+        <small *ngIf="isFieldInvalid('quantity')" id="quantity-error" class="p-error">
+          {{ getFieldError('quantity') }}
+        </small>
+      </div>
+
+      <!-- Inventory ID Field -->
+      <div class="field">
+        <label for="inventoryId">Inventory ID</label>
+        <input
+          id="inventoryId"
+          type="text"
+          pInputText
+          formControlName="inventoryId"
+          placeholder="e.g., inv-001"
+        />
+      </div>
+
+      <!-- Stock Threshold Field -->
+      <div class="field">
+        <label for="stockThreshold">Stock Threshold</label>
+        <p-inputNumber
+          inputId="stockThreshold"
+          formControlName="stockThreshold"
+          mode="decimal"
+          [minFractionDigits]="0"
+          [maxFractionDigits]="0"
+          [min]="0"
+          placeholder="e.g., 10"
+          [attr.aria-invalid]="isFieldInvalid('stockThreshold')"
+          aria-describedby="stockThreshold-error"
+        ></p-inputNumber>
+        <small *ngIf="isFieldInvalid('stockThreshold')" id="stockThreshold-error" class="p-error">
+          {{ getFieldError('stockThreshold') }}
+        </small>
+      </div>
+
+      <!-- Lead Time Field -->
+      <div class="field">
+        <label for="leadTime">Lead Time</label>
+        <input
+          id="leadTime"
+          type="text"
+          pInputText
+          formControlName="leadTime"
+          [class.p-invalid]="isFieldInvalid('leadTime')"
+          placeholder="HH:MM:SS (e.g., 72:00:00)"
+          [attr.aria-invalid]="isFieldInvalid('leadTime')"
+          aria-describedby="leadTime-error"
+        />
+        <small *ngIf="isFieldInvalid('leadTime')" id="leadTime-error" class="p-error">
+          {{ getFieldError('leadTime') }}
+        </small>
+      </div>
+
+      <!-- Boolean Flags -->
+      <div class="field">
+        <div class="p-field-checkbox">
+          <p-checkbox inputId="isStocked" formControlName="isStocked" [binary]="true"></p-checkbox>
+          <label for="isStocked">Is Stocked</label>
+        </div>
+      </div>
+
+      <div class="field">
+        <div class="p-field-checkbox">
+          <p-checkbox inputId="isEnabled" formControlName="isEnabled" [binary]="true"></p-checkbox>
+          <label for="isEnabled">Is Enabled</label>
+        </div>
+      </div>
+
+      <div class="field">
+        <div class="p-field-checkbox">
+          <p-checkbox
+            inputId="isAvailable"
+            formControlName="isAvailable"
+            [binary]="true"
+          ></p-checkbox>
+          <label for="isAvailable">Is Available</label>
+        </div>
+      </div>
+
+      <!-- Form Actions -->
+      <div class="form-actions">
+        <p-button
+          type="submit"
+          [label]="mode === 'create' ? 'Create Product' : 'Save Changes'"
+          icon="pi pi-check"
+          [disabled]="form.invalid || loading"
+          [loading]="loading"
+        ></p-button>
+        <p-button
+          type="button"
+          label="Cancel"
+          icon="pi pi-times"
+          severity="secondary"
+          (onClick)="onCancel()"
+          [disabled]="loading"
+        ></p-button>
+      </div>
+    </form>
+  </p-card>
+</div>

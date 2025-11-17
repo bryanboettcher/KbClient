@@ -1,5 +1,6 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { of, throwError, Observable } from 'rxjs';
+import { ActivatedRoute } from '@angular/router';
 import { ProductListComponent } from './product-list.component';
 import { ProductService } from '../../../services/product.service';
 import { Product, PaginatedResponse } from '../../../models';
@@ -75,7 +76,8 @@ describe('ProductListComponent', () => {
       imports: [ProductListComponent],
       providers: [
         { provide: ProductService, useValue: mockProductService },
-        { provide: NotificationService, useValue: mockNotificationService }
+        { provide: NotificationService, useValue: mockNotificationService },
+        { provide: ActivatedRoute, useValue: {} }
       ]
     }).compileComponents();
 
