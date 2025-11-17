@@ -6,6 +6,7 @@ import {
   withInterceptors
 } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
+import { MessageService } from 'primeng/api';
 import { httpErrorInterceptor } from './http-error.interceptor';
 import { ErrorLoggingService } from '../services/error-logging.service';
 import { NotificationService } from '../services/notification.service';
@@ -32,6 +33,7 @@ describe('httpErrorInterceptor', () => {
         provideHttpClientTesting(),
         ErrorLoggingService,
         NotificationService,
+        MessageService,
         { provide: NGXLogger, useValue: loggerMock }
       ]
     });

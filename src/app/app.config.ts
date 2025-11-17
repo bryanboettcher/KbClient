@@ -7,17 +7,21 @@ import {
 import { provideRouter } from '@angular/router';
 import { provideHttpClient, withInterceptors } from '@angular/common/http';
 import { LoggerModule, NgxLoggerLevel } from 'ngx-logger';
+import { MessageService } from 'primeng/api';
+import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
 
 import { routes } from './app.routes';
 import { environment } from './environments/environment';
 import { httpErrorInterceptor } from './interceptors/http-error.interceptor';
 import { GlobalErrorHandler } from './handlers/global-error.handler';
+import { PrimeNgNotificationService } from './services/notification.service';
 
 export const appConfig: ApplicationConfig = {
   providers: [
     provideZoneChangeDetection({ eventCoalescing: true }),
     provideRouter(routes),
     provideHttpClient(withInterceptors([httpErrorInterceptor])),
+    provideAnimationsAsync(),
     importProvidersFrom(
       LoggerModule.forRoot({
         level: environment.production ? NgxLoggerLevel.ERROR : NgxLoggerLevel.DEBUG,
@@ -27,6 +31,10 @@ export const appConfig: ApplicationConfig = {
       })
     ),
     // Global error handler for uncaught exceptions
-    { provide: ErrorHandler, useClass: GlobalErrorHandler }
+    { provide: ErrorHandler, useClass: GlobalErrorHandler },
+    // PrimeNG MessageService for toast notifications
+    MessageService,
+    // Notification service implementation - PrimeNG Toast
+    PrimeNgNotificationService
   ]
 };

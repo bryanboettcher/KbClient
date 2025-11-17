@@ -42,7 +42,7 @@
                 "output": "/"
               }
             ],
-            "styles": ["src/styles.scss"],
+            "styles": ["primeicons/primeicons.css", "src/styles.scss"],
             "scripts": []
           },
           "configurations": {
@@ -106,7 +106,7 @@
                 "output": "/"
               }
             ],
-            "styles": ["src/styles.scss"],
+            "styles": ["primeicons/primeicons.css", "src/styles.scss"],
             "scripts": [],
             "karmaConfig": "karma.conf.js"
           }
