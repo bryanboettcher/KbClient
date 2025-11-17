@@ -9,7 +9,6 @@ import {
   PaginatedResponse,
   ProductQueryOptions
 } from '../models';
-import { ProductFilters, ProductFilterOptions } from '../utils/product-filters';
 
 @Injectable({
   providedIn: 'root'

@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { Observable, throwError } from 'rxjs';
 import { catchError } from 'rxjs/operators';
@@ -10,11 +10,8 @@ import { environment } from '../environments/environment';
 })
 export class ApiService {
   protected apiUrl = environment.apiUrl;
-
-  constructor(
-    protected http: HttpClient,
-    protected logger: NGXLogger
-  ) {}
+  protected readonly http = inject(HttpClient);
+  protected readonly logger = inject(NGXLogger);
 
   protected handleError(error: HttpErrorResponse): Observable<never> {
     let errorMessage = 'An error occurred';

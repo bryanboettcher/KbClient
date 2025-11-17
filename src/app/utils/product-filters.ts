@@ -80,11 +80,12 @@ export class ProductFilters {
         case 'sku':
           comparison = a.sku.localeCompare(b.sku);
           break;
-        case 'name':
+        case 'name': {
           const aName = a.name || '';
           const bName = b.name || '';
           comparison = aName.localeCompare(bName);
           break;
+        }
         case 'quantity':
           comparison = a.quantity - b.quantity;
           break;

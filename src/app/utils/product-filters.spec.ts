@@ -1,4 +1,4 @@
-import { ProductFilters, ProductFilterOptions } from './product-filters';
+import { ProductFilters } from './product-filters';
 import { Product } from '../models';
 
 describe('ProductFilters', () => {

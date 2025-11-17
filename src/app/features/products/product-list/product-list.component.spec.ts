@@ -56,10 +56,10 @@ describe('ProductListComponent', () => {
 
   beforeEach(async () => {
     mockProductService = {
-      getProducts: jest.fn(),
-      enableProduct: jest.fn(),
-      disableProduct: jest.fn(),
-      deleteProduct: jest.fn()
+      getProducts: jest.fn().mockReturnValue(of({ totalItems: 0, page: 0, size: 25, results: [] })),
+      enableProduct: jest.fn().mockReturnValue(of({})),
+      disableProduct: jest.fn().mockReturnValue(of({})),
+      deleteProduct: jest.fn().mockReturnValue(of(undefined))
     } as any;
 
     await TestBed.configureTestingModule({
@@ -162,7 +162,7 @@ describe('ProductListComponent', () => {
       mockProductService.getProducts.mockReturnValue(throwError(() => new Error(errorMessage)));
 
       // Suppress expected console.error for this test
-      const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
+      const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation(() => undefined);
 
       component.loadProducts();
 
@@ -180,7 +180,7 @@ describe('ProductListComponent', () => {
       const validationError = new Error('Invalid API response: missing "results" property');
       mockProductService.getProducts.mockReturnValue(throwError(() => validationError));
 
-      const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
+      const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation(() => undefined);
 
       component.loadProducts();
 
@@ -200,7 +200,7 @@ describe('ProductListComponent', () => {
 
       mockProductService.getProducts.mockReturnValue(throwError(() => new Error('Network error')));
 
-      const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
+      const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation(() => undefined);
 
       component.loadProducts();
 
@@ -645,7 +645,7 @@ describe('ProductListComponent', () => {
       const product: ProductWithState = { ...mockProduct2, isEnabled: false };
       mockProductService.enableProduct.mockReturnValue(throwError(() => new Error('API error')));
 
-      const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
+      const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation(() => undefined);
 
       component.products = [product];
       component.toggleEnabled(product);
@@ -665,7 +665,7 @@ describe('ProductListComponent', () => {
       const product = { ...mockProduct1, isEnabled: true };
       mockProductService.disableProduct.mockReturnValue(throwError(() => new Error('API error')));
 
-      const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
+      const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation(() => undefined);
 
       component.products = [product];
       component.toggleEnabled(product);
@@ -769,7 +769,7 @@ describe('ProductListComponent', () => {
       const product: ProductWithState = { ...mockProduct1 };
       mockProductService.deleteProduct.mockReturnValue(throwError(() => new Error('API error')));
 
-      const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
+      const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation(() => undefined);
 
       component.products = [product];
       component.totalItems = 1;

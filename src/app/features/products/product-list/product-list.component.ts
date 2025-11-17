@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { FormControl, FormsModule, ReactiveFormsModule } from '@angular/forms';
@@ -36,7 +36,7 @@ export class ProductListComponent implements OnInit {
   sortBy: 'sku' | 'name' | 'quantity' | 'updatedOn' = 'sku';
   sortOrder: 'asc' | 'desc' = 'asc';
 
-  constructor(private productService: ProductService) {}
+  private readonly productService = inject(ProductService);
 
   ngOnInit(): void {
     this.loadProducts();
@@ -183,7 +183,6 @@ export class ProductListComponent implements OnInit {
     }
 
     const action = product.isEnabled ? 'disable' : 'enable';
-    const actionLabel = product.isEnabled ? 'Disable' : 'Enable';
 
     product.actionLoading = true;
     product.actionType = action;
