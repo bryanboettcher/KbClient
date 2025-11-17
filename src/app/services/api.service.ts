@@ -1,47 +1,34 @@
 import { Injectable, inject } from '@angular/core';
-import { HttpClient, HttpErrorResponse } from '@angular/common/http';
-import { Observable, throwError } from 'rxjs';
-import { catchError } from 'rxjs/operators';
-import { NGXLogger } from 'ngx-logger';
+import { HttpClient } from '@angular/common/http';
+import { Observable } from 'rxjs';
 import { environment } from '../environments/environment';
 
+/**
+ * Base API service
+ *
+ * Provides HTTP methods for API communication.
+ * Error handling is now centralized in the HTTP error interceptor.
+ */
 @Injectable({
   providedIn: 'root'
 })
 export class ApiService {
   protected apiUrl = environment.apiUrl;
   protected readonly http = inject(HttpClient);
-  protected readonly logger = inject(NGXLogger);
-
-  protected handleError(error: HttpErrorResponse): Observable<never> {
-    let errorMessage = 'An error occurred';
-
-    if (error.error instanceof ErrorEvent) {
-      // Client-side error
-      errorMessage = `Error: ${error.error.message}`;
-      this.logger.error('Client-side error:', error.error.message);
-    } else {
-      // Server-side error
-      errorMessage = `Error Code: ${error.status}\nMessage: ${error.message}`;
-      this.logger.error('Server-side error:', { status: error.status, message: error.message });
-    }
-
-    return throwError(() => new Error(errorMessage));
-  }
 
   get<T>(endpoint: string): Observable<T> {
-    return this.http.get<T>(`${this.apiUrl}/${endpoint}`).pipe(catchError(this.handleError));
+    return this.http.get<T>(`${this.apiUrl}/${endpoint}`);
   }
 
   post<T>(endpoint: string, data: any): Observable<T> {
-    return this.http.post<T>(`${this.apiUrl}/${endpoint}`, data).pipe(catchError(this.handleError));
+    return this.http.post<T>(`${this.apiUrl}/${endpoint}`, data);
   }
 
   put<T>(endpoint: string, data: any): Observable<T> {
-    return this.http.put<T>(`${this.apiUrl}/${endpoint}`, data).pipe(catchError(this.handleError));
+    return this.http.put<T>(`${this.apiUrl}/${endpoint}`, data);
   }
 
   delete<T>(endpoint: string): Observable<T> {
-    return this.http.delete<T>(`${this.apiUrl}/${endpoint}`).pipe(catchError(this.handleError));
+    return this.http.delete<T>(`${this.apiUrl}/${endpoint}`);
   }
 }

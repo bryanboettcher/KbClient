@@ -3,6 +3,7 @@ import { of, throwError, Observable } from 'rxjs';
 import { ProductListComponent } from './product-list.component';
 import { ProductService } from '../../../services/product.service';
 import { Product, PaginatedResponse } from '../../../models';
+import { NotificationService } from '../../../services/notification.service';
 
 // Extended product interface for testing action state
 interface ProductWithState extends Product {
@@ -14,6 +15,7 @@ describe('ProductListComponent', () => {
   let component: ProductListComponent;
   let fixture: ComponentFixture<ProductListComponent>;
   let mockProductService: jest.Mocked<ProductService>;
+  let mockNotificationService: jest.Mocked<NotificationService>;
 
   const mockProduct1: Product = {
     productId: '1',
@@ -62,9 +64,19 @@ describe('ProductListComponent', () => {
       deleteProduct: jest.fn().mockReturnValue(of(undefined))
     } as any;
 
+    mockNotificationService = {
+      error: jest.fn(),
+      success: jest.fn(),
+      warning: jest.fn(),
+      info: jest.fn()
+    } as any;
+
     await TestBed.configureTestingModule({
       imports: [ProductListComponent],
-      providers: [{ provide: ProductService, useValue: mockProductService }]
+      providers: [
+        { provide: ProductService, useValue: mockProductService },
+        { provide: NotificationService, useValue: mockNotificationService }
+      ]
     }).compileComponents();
 
     fixture = TestBed.createComponent(ProductListComponent);
@@ -161,16 +173,12 @@ describe('ProductListComponent', () => {
       const errorMessage = 'API Error';
       mockProductService.getProducts.mockReturnValue(throwError(() => new Error(errorMessage)));
 
-      // Suppress expected console.error for this test
-      const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation(() => undefined);
-
       component.loadProducts();
 
       setTimeout(() => {
         expect(component.error).toBe('Failed to load products. Please try again.');
         expect(component.loading).toBe(false);
-        expect(consoleErrorSpy).toHaveBeenCalledWith('Error loading products:', expect.any(Error));
-        consoleErrorSpy.mockRestore();
+        // Error notification is handled by HTTP interceptor, not component
         done();
       }, 50);
     });
@@ -180,15 +188,12 @@ describe('ProductListComponent', () => {
       const validationError = new Error('Invalid API response: missing "results" property');
       mockProductService.getProducts.mockReturnValue(throwError(() => validationError));
 
-      const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation(() => undefined);
-
       component.loadProducts();
 
       setTimeout(() => {
         expect(component.error).toBe('Failed to load products. Please try again.');
         expect(component.products).toEqual([]); // Products should remain empty on error
         expect(component.loading).toBe(false);
-        consoleErrorSpy.mockRestore();
         done();
       }, 50);
     });
@@ -200,8 +205,6 @@ describe('ProductListComponent', () => {
 
       mockProductService.getProducts.mockReturnValue(throwError(() => new Error('Network error')));
 
-      const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation(() => undefined);
-
       component.loadProducts();
 
       setTimeout(() => {
@@ -210,7 +213,6 @@ describe('ProductListComponent', () => {
         expect(component.products).toEqual([mockProduct1]);
         expect(component.totalItems).toBe(1);
         expect(component.error).toBe('Failed to load products. Please try again.');
-        consoleErrorSpy.mockRestore();
         done();
       }, 50);
     });
@@ -590,8 +592,9 @@ describe('ProductListComponent', () => {
         expect(component.products[0].isEnabled).toBe(true);
         expect(component.products[0].actionLoading).toBe(false);
         expect(component.products[0].actionType).toBeUndefined();
-        expect(component.actionMessage).toContain('enabled successfully');
-        expect(component.actionMessageType).toBe('success');
+        expect(mockNotificationService.success).toHaveBeenCalledWith(
+          expect.stringContaining('enabled successfully')
+        );
         done();
       }, 50);
     });
@@ -636,7 +639,9 @@ describe('ProductListComponent', () => {
         expect(mockProductService.disableProduct).toHaveBeenCalledWith('1');
         expect(component.products[0].isEnabled).toBe(false);
         expect(component.products[0].actionLoading).toBe(false);
-        expect(component.actionMessage).toContain('disabled successfully');
+        expect(mockNotificationService.success).toHaveBeenCalledWith(
+          expect.stringContaining('disabled successfully')
+        );
         done();
       }, 50);
     });
@@ -645,8 +650,6 @@ describe('ProductListComponent', () => {
       const product: ProductWithState = { ...mockProduct2, isEnabled: false };
       mockProductService.enableProduct.mockReturnValue(throwError(() => new Error('API error')));
 
-      const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation(() => undefined);
-
       component.products = [product];
       component.toggleEnabled(product);
 
@@ -654,9 +657,7 @@ describe('ProductListComponent', () => {
         expect(product.actionLoading).toBe(false);
         expect(product.actionType).toBeUndefined();
         expect(product.isEnabled).toBe(false); // State unchanged
-        expect(component.actionMessage).toContain('Failed to enable');
-        expect(component.actionMessageType).toBe('error');
-        consoleErrorSpy.mockRestore();
+        // Error is handled and logged by HTTP interceptor
         done();
       }, 50);
     });
@@ -665,16 +666,12 @@ describe('ProductListComponent', () => {
       const product = { ...mockProduct1, isEnabled: true };
       mockProductService.disableProduct.mockReturnValue(throwError(() => new Error('API error')));
 
-      const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation(() => undefined);
-
       component.products = [product];
       component.toggleEnabled(product);
 
       setTimeout(() => {
         expect(product.isEnabled).toBe(true); // State unchanged
-        expect(component.actionMessage).toContain('Failed to disable');
-        expect(component.actionMessageType).toBe('error');
-        consoleErrorSpy.mockRestore();
+        // Error is handled and logged by HTTP interceptor
         done();
       }, 50);
     });
@@ -688,29 +685,18 @@ describe('ProductListComponent', () => {
       expect(mockProductService.disableProduct).not.toHaveBeenCalled();
     });
 
-    it('should clear previous action message before starting', done => {
+    it('should call notification service for success', done => {
       const product = { ...mockProduct2, isEnabled: false };
       const enabledProduct = { ...product, isEnabled: true };
 
-      // Use delayed Observable to verify message is cleared during request
-      mockProductService.enableProduct.mockReturnValue(
-        new Observable(subscriber => {
-          // Check that previous message was cleared
-          expect(component.actionMessage).toBeNull();
+      mockProductService.enableProduct.mockReturnValue(of(enabledProduct));
 
-          setTimeout(() => {
-            subscriber.next(enabledProduct);
-            subscriber.complete();
-          }, 50);
-        })
-      );
-
-      component.actionMessage = 'Previous message';
       component.toggleEnabled(product);
 
       setTimeout(() => {
+        expect(mockNotificationService.success).toHaveBeenCalled();
         done();
-      }, 100);
+      }, 50);
     });
   });
 
@@ -748,8 +734,9 @@ describe('ProductListComponent', () => {
         expect(mockProductService.deleteProduct).toHaveBeenCalledWith('1');
         expect(component.products.length).toBe(0);
         expect(component.totalItems).toBe(0);
-        expect(component.actionMessage).toContain('deleted successfully');
-        expect(component.actionMessageType).toBe('success');
+        expect(mockNotificationService.success).toHaveBeenCalledWith(
+          expect.stringContaining('deleted successfully')
+        );
         done();
       }, 50);
     });
@@ -769,8 +756,6 @@ describe('ProductListComponent', () => {
       const product: ProductWithState = { ...mockProduct1 };
       mockProductService.deleteProduct.mockReturnValue(throwError(() => new Error('API error')));
 
-      const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation(() => undefined);
-
       component.products = [product];
       component.totalItems = 1;
       component.confirmDelete(product);
@@ -780,9 +765,7 @@ describe('ProductListComponent', () => {
         expect(product.actionType).toBeUndefined();
         expect(component.products.length).toBe(1); // Product not removed
         expect(component.totalItems).toBe(1);
-        expect(component.actionMessage).toContain('Failed to delete');
-        expect(component.actionMessageType).toBe('error');
-        consoleErrorSpy.mockRestore();
+        // Error is handled and logged by HTTP interceptor
         done();
       }, 50);
     });
@@ -828,74 +811,6 @@ describe('ProductListComponent', () => {
         expect(component.products.length).toBe(1);
         done();
       }, 50);
-    });
-  });
-
-  describe('action messages', () => {
-    it('should show success message', () => {
-      component['showActionMessage']('Test success', 'success');
-
-      expect(component.actionMessage).toBe('Test success');
-      expect(component.actionMessageType).toBe('success');
-    });
-
-    it('should show error message', () => {
-      component['showActionMessage']('Test error', 'error');
-
-      expect(component.actionMessage).toBe('Test error');
-      expect(component.actionMessageType).toBe('error');
-    });
-
-    it('should clear action message', () => {
-      component.actionMessage = 'Some message';
-      component.clearActionMessage();
-
-      expect(component.actionMessage).toBeNull();
-    });
-
-    it('should auto-clear success messages after timeout', done => {
-      jest.useFakeTimers();
-
-      component['showActionMessage']('Auto-clear test', 'success');
-
-      expect(component.actionMessage).toBe('Auto-clear test');
-
-      jest.advanceTimersByTime(5000);
-
-      expect(component.actionMessage).toBeNull();
-
-      jest.useRealTimers();
-      done();
-    });
-
-    it('should not auto-clear error messages', done => {
-      jest.useFakeTimers();
-
-      component['showActionMessage']('Error test', 'error');
-
-      jest.advanceTimersByTime(10000);
-
-      expect(component.actionMessage).toBe('Error test');
-
-      jest.useRealTimers();
-      done();
-    });
-
-    it('should not clear message if it changed', done => {
-      jest.useFakeTimers();
-
-      component['showActionMessage']('First message', 'success');
-
-      jest.advanceTimersByTime(2000);
-
-      component['showActionMessage']('Second message', 'success');
-
-      jest.advanceTimersByTime(3000); // First timer fires
-
-      expect(component.actionMessage).toBe('Second message');
-
-      jest.useRealTimers();
-      done();
     });
   });
 });

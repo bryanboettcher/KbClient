@@ -5,6 +5,7 @@ import { FormControl, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
 import { ProductService } from '../../../services/product.service';
 import { Product, ProductQueryOptions } from '../../../models';
+import { NotificationService } from '../../../services/notification.service';
 
 // Extended product with UI state for row-level actions
 interface ProductWithState extends Product {
@@ -27,16 +28,13 @@ export class ProductListComponent implements OnInit {
   loading = false;
   error: string | null = null;
 
-  // Action feedback messages
-  actionMessage: string | null = null;
-  actionMessageType: 'success' | 'error' = 'success';
-
   searchControl = new FormControl('');
   statusFilter: 'enabled' | 'disabled' | null = null;
   sortBy: 'sku' | 'name' | 'quantity' | 'updatedOn' = 'sku';
   sortOrder: 'asc' | 'desc' = 'asc';
 
   private readonly productService = inject(ProductService);
+  private readonly notificationService = inject(NotificationService);
 
   ngOnInit(): void {
     this.loadProducts();
@@ -77,11 +75,13 @@ export class ProductListComponent implements OnInit {
         this.products = response.results;
         this.totalItems = response.totalItems;
         this.loading = false;
+        this.error = null;
       },
-      error: err => {
+      error: () => {
+        // Error is already handled and logged by HTTP interceptor
+        // Just update local state
         this.error = 'Failed to load products. Please try again.';
         this.loading = false;
-        console.error('Error loading products:', err);
       }
     });
   }
@@ -186,7 +186,6 @@ export class ProductListComponent implements OnInit {
 
     product.actionLoading = true;
     product.actionType = action;
-    this.clearActionMessage();
 
     const serviceCall = product.isEnabled
       ? this.productService.disableProduct(product.productId)
@@ -199,20 +198,14 @@ export class ProductListComponent implements OnInit {
         product.actionLoading = false;
         product.actionType = undefined;
 
-        this.showActionMessage(
-          `Product "${product.sku}" has been ${action}d successfully.`,
-          'success'
+        this.notificationService.success(
+          `Product "${product.sku}" has been ${action}d successfully.`
         );
       },
-      error: err => {
+      error: () => {
+        // Error is already handled and logged by HTTP interceptor
         product.actionLoading = false;
         product.actionType = undefined;
-
-        this.showActionMessage(
-          `Failed to ${action} product "${product.sku}". Please try again.`,
-          'error'
-        );
-        console.error(`Error ${action}ing product:`, err);
       }
     });
   }
@@ -234,7 +227,6 @@ export class ProductListComponent implements OnInit {
   private deleteProductAction(product: ProductWithState): void {
     product.actionLoading = true;
     product.actionType = 'delete';
-    this.clearActionMessage();
 
     this.productService.deleteProduct(product.productId).subscribe({
       next: () => {
@@ -245,10 +237,7 @@ export class ProductListComponent implements OnInit {
           this.totalItems = Math.max(0, this.totalItems - 1);
         }
 
-        this.showActionMessage(
-          `Product "${product.sku}" has been deleted successfully.`,
-          'success'
-        );
+        this.notificationService.success(`Product "${product.sku}" has been deleted successfully.`);
 
         // If we deleted the last item on the page, go to previous page
         if (this.products.length === 0 && this.currentPage > 0) {
@@ -256,34 +245,11 @@ export class ProductListComponent implements OnInit {
           this.loadProducts();
         }
       },
-      error: err => {
+      error: () => {
+        // Error is already handled and logged by HTTP interceptor
         product.actionLoading = false;
         product.actionType = undefined;
-
-        this.showActionMessage(
-          `Failed to delete product "${product.sku}". Please try again.`,
-          'error'
-        );
-        console.error('Error deleting product:', err);
       }
     });
-  }
-
-  private showActionMessage(message: string, type: 'success' | 'error'): void {
-    this.actionMessage = message;
-    this.actionMessageType = type;
-
-    // Auto-clear success messages after 5 seconds
-    if (type === 'success') {
-      setTimeout(() => {
-        if (this.actionMessage === message) {
-          this.clearActionMessage();
-        }
-      }, 5000);
-    }
-  }
-
-  clearActionMessage(): void {
-    this.actionMessage = null;
   }
 }

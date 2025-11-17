@@ -1,16 +1,23 @@
-import { ApplicationConfig, provideZoneChangeDetection, importProvidersFrom } from '@angular/core';
+import {
+  ApplicationConfig,
+  ErrorHandler,
+  provideZoneChangeDetection,
+  importProvidersFrom
+} from '@angular/core';
 import { provideRouter } from '@angular/router';
-import { provideHttpClient, withInterceptorsFromDi } from '@angular/common/http';
+import { provideHttpClient, withInterceptors } from '@angular/common/http';
 import { LoggerModule, NgxLoggerLevel } from 'ngx-logger';
 
 import { routes } from './app.routes';
 import { environment } from './environments/environment';
+import { httpErrorInterceptor } from './interceptors/http-error.interceptor';
+import { GlobalErrorHandler } from './handlers/global-error.handler';
 
 export const appConfig: ApplicationConfig = {
   providers: [
     provideZoneChangeDetection({ eventCoalescing: true }),
     provideRouter(routes),
-    provideHttpClient(withInterceptorsFromDi()),
+    provideHttpClient(withInterceptors([httpErrorInterceptor])),
     importProvidersFrom(
       LoggerModule.forRoot({
         level: environment.production ? NgxLoggerLevel.ERROR : NgxLoggerLevel.DEBUG,
@@ -18,6 +25,8 @@ export const appConfig: ApplicationConfig = {
         disableConsoleLogging: false,
         colorScheme: ['purple', 'teal', 'gray', 'gray', 'red', 'red', 'red']
       })
-    )
+    ),
+    // Global error handler for uncaught exceptions
+    { provide: ErrorHandler, useClass: GlobalErrorHandler }
   ]
 };

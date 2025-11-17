@@ -1,6 +1,7 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
+import { NGXLogger } from 'ngx-logger';
 import { ApiService } from './api.service';
 import {
   Product,
@@ -15,6 +16,7 @@ import {
 })
 export class ProductService extends ApiService {
   private endpoint = 'products';
+  private readonly logger = inject(NGXLogger);
 
   /**
    * Get paginated products with server-side filtering and sorting

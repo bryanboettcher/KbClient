@@ -31,20 +31,6 @@
     </div>
   </div>
 
-  <!-- Action Message Feedback -->
-  <div
-    *ngIf="actionMessage"
-    class="action-message"
-    [ngClass]="actionMessageType"
-    role="status"
-    aria-live="polite"
-  >
-    <span class="message-text">{{ actionMessage }}</span>
-    <button (click)="clearActionMessage()" class="dismiss-btn" aria-label="Dismiss message">
-      &times;
-    </button>
-  </div>
-
   <!-- Error State -->
   <div *ngIf="error" class="error-state" role="alert">
     <div class="error-icon">⚠</div>
