@@ -40,3 +40,16 @@ export interface UpdateProductPayload {
   description?: string;
   price?: number;
 }
+
+/**
+ * Server-side query options for product filtering
+ * Used to build query parameters for the products API endpoint
+ */
+export interface ProductQueryOptions {
+  page?: number;
+  size?: number;
+  search?: string;
+  status?: 'enabled' | 'disabled' | 'all';
+  sort?: 'name' | 'sku' | 'quantity' | 'createdOn' | 'updatedOn';
+  order?: 'asc' | 'desc';
+}

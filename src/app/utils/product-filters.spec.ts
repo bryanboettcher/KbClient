@@ -110,6 +110,82 @@ describe('ProductFilters', () => {
       const result = ProductFilters.apply([], {});
       expect(result).toHaveLength(0);
     });
+
+    it('should throw error when products is null', () => {
+      expect(() => ProductFilters.apply(null as any, {})).toThrow(
+        'ProductFilters.apply: products parameter is null or undefined'
+      );
+    });
+
+    it('should throw error when products is undefined', () => {
+      expect(() => ProductFilters.apply(undefined as any, {})).toThrow(
+        'ProductFilters.apply: products parameter is null or undefined'
+      );
+    });
+
+    it('should throw error when products is not an array', () => {
+      const invalidInput = { results: mockProducts } as any;
+      expect(() => ProductFilters.apply(invalidInput, {})).toThrow(
+        'ProductFilters.apply: products must be an array, received object'
+      );
+    });
+
+    it('should throw error when products is a string', () => {
+      expect(() => ProductFilters.apply('invalid' as any, {})).toThrow(
+        'ProductFilters.apply: products must be an array, received string'
+      );
+    });
+
+    it('should throw error when products is a number', () => {
+      expect(() => ProductFilters.apply(42 as any, {})).toThrow(
+        'ProductFilters.apply: products must be an array, received number'
+      );
+    });
+
+    it('should throw error when products is a PaginatedResponse (common mistake)', () => {
+      // This is the EXACT bug scenario: passing { results: [...] } instead of [...]
+      const paginatedResponse = {
+        totalItems: 2,
+        page: 0,
+        size: 25,
+        results: mockProducts
+      };
+      expect(() => ProductFilters.apply(paginatedResponse as any, {})).toThrow(
+        'ProductFilters.apply: products must be an array, received object'
+      );
+    });
+
+    it('should handle array with invalid product objects gracefully', () => {
+      // Products array contains malformed items (missing required properties)
+      const invalidProducts = [
+        { productId: '1', sku: 'TEST', name: null, quantity: 10, isEnabled: true, isStocked: true },
+        {
+          productId: '2',
+          sku: 'OTHER',
+          name: 'Valid Name',
+          quantity: 20,
+          isEnabled: false,
+          isStocked: true
+        }
+      ] as any[];
+
+      // Should not throw, should filter as best as possible
+      const result = ProductFilters.apply(invalidProducts, { search: 'other' });
+      expect(result).toHaveLength(1);
+      expect(result[0].sku).toBe('OTHER');
+    });
+
+    it('should handle filters parameter when undefined', () => {
+      // Edge case: if filters is undefined
+      const result = ProductFilters.apply(mockProducts, undefined as any);
+      // Should not throw, should return copy of all products
+      expect(result).toHaveLength(6);
+    });
+
+    it('should handle filters parameter when null', () => {
+      const result = ProductFilters.apply(mockProducts, null as any);
+      expect(result).toHaveLength(6);
+    });
   });
 
   describe('search filter', () => {

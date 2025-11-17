@@ -49,13 +49,5 @@ module.exports = {
   testPathIgnorePatterns: [
     '/node_modules/',
     '/dist/'
-  ],
-
-  // Globals
-  globals: {
-    'ts-jest': {
-      tsconfig: '<rootDir>/tsconfig.spec.json',
-      stringifyContentPathRegex: '\\.html$'
-    }
-  }
+  ]
 };

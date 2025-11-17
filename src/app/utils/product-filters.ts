@@ -13,9 +13,26 @@ export class ProductFilters {
    * @param products - The products to filter
    * @param filters - Filter options to apply
    * @returns Filtered and sorted products
+   * @throws Error if products is not a valid array
    */
   static apply(products: Product[], filters: ProductFilterOptions): Product[] {
+    // Defensive validation: ensure products is iterable
+    if (!products) {
+      throw new Error('ProductFilters.apply: products parameter is null or undefined');
+    }
+
+    if (!Array.isArray(products)) {
+      throw new Error(
+        `ProductFilters.apply: products must be an array, received ${typeof products}`
+      );
+    }
+
     let results = [...products];
+
+    // Handle null/undefined filters gracefully
+    if (!filters) {
+      return results;
+    }
 
     // Search filter (SKU or name)
     if (filters.search) {

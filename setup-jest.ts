@@ -8,12 +8,6 @@ import {
   BrowserDynamicTestingModule,
   platformBrowserDynamicTesting
 } from '@angular/platform-browser-dynamic/testing';
-import { TextEncoder, TextDecoder } from 'util';
-
-// Polyfill TextEncoder/TextDecoder for MSW (Node.js environment)
-global.TextEncoder = TextEncoder;
-global.TextDecoder = TextDecoder as any;
-
 // Initialize the Angular testing environment
 getTestBed().initTestEnvironment(BrowserDynamicTestingModule, platformBrowserDynamicTesting());
 

@@ -4,8 +4,13 @@ import { RouterModule } from '@angular/router';
 import { FormControl, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
 import { ProductService } from '../../../services/product.service';
-import { Product } from '../../../models';
-import { ProductFilterOptions } from '../../../utils/product-filters';
+import { Product, ProductQueryOptions } from '../../../models';
+
+// Extended product with UI state for row-level actions
+interface ProductWithState extends Product {
+  actionLoading?: boolean;
+  actionType?: 'enable' | 'disable' | 'delete';
+}
 
 @Component({
   selector: 'app-product-list',
@@ -15,15 +20,19 @@ import { ProductFilterOptions } from '../../../utils/product-filters';
   styleUrls: ['./product-list.component.scss']
 })
 export class ProductListComponent implements OnInit {
-  products: Product[] = [];
+  products: ProductWithState[] = [];
   totalItems = 0;
   currentPage = 0;
   pageSize = 25;
   loading = false;
   error: string | null = null;
 
+  // Action feedback messages
+  actionMessage: string | null = null;
+  actionMessageType: 'success' | 'error' = 'success';
+
   searchControl = new FormControl('');
-  statusFilter: 'enabled' | 'disabled' | 'discontinued' | null = null;
+  statusFilter: 'enabled' | 'disabled' | null = null;
   sortBy: 'sku' | 'name' | 'quantity' | 'updatedOn' = 'sku';
   sortOrder: 'asc' | 'desc' = 'asc';
 
@@ -45,22 +54,25 @@ export class ProductListComponent implements OnInit {
     this.loading = true;
     this.error = null;
 
-    const filters: ProductFilterOptions = {};
+    const options: ProductQueryOptions = {
+      page: this.currentPage,
+      size: this.pageSize
+    };
 
     if (this.searchControl.value) {
-      filters.search = this.searchControl.value;
+      options.search = this.searchControl.value;
     }
 
     if (this.statusFilter) {
-      filters.status = this.statusFilter;
+      options.status = this.statusFilter;
     }
 
     if (this.sortBy) {
-      filters.sortBy = this.sortBy;
-      filters.sortOrder = this.sortOrder;
+      options.sort = this.sortBy;
+      options.order = this.sortOrder;
     }
 
-    this.productService.getProducts(this.currentPage, this.pageSize, filters).subscribe({
+    this.productService.getProducts(options).subscribe({
       next: response => {
         this.products = response.results;
         this.totalItems = response.totalItems;
@@ -81,7 +93,7 @@ export class ProductListComponent implements OnInit {
     if (value === 'all') {
       this.statusFilter = null;
     } else {
-      this.statusFilter = value as 'enabled' | 'disabled' | 'discontinued';
+      this.statusFilter = value as 'enabled' | 'disabled';
     }
 
     this.currentPage = 0; // Reset to first page on filter change
@@ -163,5 +175,116 @@ export class ProductListComponent implements OnInit {
 
   trackByProductId(index: number, product: Product): string {
     return product.productId;
+  }
+
+  toggleEnabled(product: ProductWithState): void {
+    if (product.actionLoading) {
+      return;
+    }
+
+    const action = product.isEnabled ? 'disable' : 'enable';
+    const actionLabel = product.isEnabled ? 'Disable' : 'Enable';
+
+    product.actionLoading = true;
+    product.actionType = action;
+    this.clearActionMessage();
+
+    const serviceCall = product.isEnabled
+      ? this.productService.disableProduct(product.productId)
+      : this.productService.enableProduct(product.productId);
+
+    serviceCall.subscribe({
+      next: updatedProduct => {
+        // Update local state with response
+        Object.assign(product, updatedProduct);
+        product.actionLoading = false;
+        product.actionType = undefined;
+
+        this.showActionMessage(
+          `Product "${product.sku}" has been ${action}d successfully.`,
+          'success'
+        );
+      },
+      error: err => {
+        product.actionLoading = false;
+        product.actionType = undefined;
+
+        this.showActionMessage(
+          `Failed to ${action} product "${product.sku}". Please try again.`,
+          'error'
+        );
+        console.error(`Error ${action}ing product:`, err);
+      }
+    });
+  }
+
+  confirmDelete(product: ProductWithState): void {
+    if (product.actionLoading) {
+      return;
+    }
+
+    const confirmed = window.confirm(
+      `Are you sure you want to delete "${product.sku}"?\n\nThis action cannot be undone.`
+    );
+
+    if (confirmed) {
+      this.deleteProductAction(product);
+    }
+  }
+
+  private deleteProductAction(product: ProductWithState): void {
+    product.actionLoading = true;
+    product.actionType = 'delete';
+    this.clearActionMessage();
+
+    this.productService.deleteProduct(product.productId).subscribe({
+      next: () => {
+        // Remove from local array
+        const index = this.products.findIndex(p => p.productId === product.productId);
+        if (index !== -1) {
+          this.products.splice(index, 1);
+          this.totalItems = Math.max(0, this.totalItems - 1);
+        }
+
+        this.showActionMessage(
+          `Product "${product.sku}" has been deleted successfully.`,
+          'success'
+        );
+
+        // If we deleted the last item on the page, go to previous page
+        if (this.products.length === 0 && this.currentPage > 0) {
+          this.currentPage--;
+          this.loadProducts();
+        }
+      },
+      error: err => {
+        product.actionLoading = false;
+        product.actionType = undefined;
+
+        this.showActionMessage(
+          `Failed to delete product "${product.sku}". Please try again.`,
+          'error'
+        );
+        console.error('Error deleting product:', err);
+      }
+    });
+  }
+
+  private showActionMessage(message: string, type: 'success' | 'error'): void {
+    this.actionMessage = message;
+    this.actionMessageType = type;
+
+    // Auto-clear success messages after 5 seconds
+    if (type === 'success') {
+      setTimeout(() => {
+        if (this.actionMessage === message) {
+          this.clearActionMessage();
+        }
+      }, 5000);
+    }
+  }
+
+  clearActionMessage(): void {
+    this.actionMessage = null;
   }
 }

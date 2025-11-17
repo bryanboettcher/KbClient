@@ -80,107 +80,440 @@ describe('ProductService', () => {
   });
 
   describe('getProducts', () => {
-    it('should call GET /products with pagination parameters', done => {
-      const mockResponse: PaginatedResponse<Product> = {
-        totalItems: 2,
-        page: 0,
-        size: 25,
-        results: [mockProduct, mockProduct2]
-      };
-      httpClientMock.get.mockReturnValue(of(mockResponse));
+    describe('query string building', () => {
+      it('should build URL with default pagination when no options provided', done => {
+        const mockResponse: PaginatedResponse<Product> = {
+          totalItems: 2,
+          page: 0,
+          size: 25,
+          results: [mockProduct, mockProduct2]
+        };
+        httpClientMock.get.mockReturnValue(of(mockResponse));
 
-      service.getProducts(0, 25).subscribe(response => {
-        expect(httpClientMock.get).toHaveBeenCalledWith(
-          'http://localhost:5000/api/products?page=0&size=25'
-        );
-        expect(response).toEqual(mockResponse);
-        expect(response.results).toHaveLength(2);
-        done();
+        service.getProducts().subscribe(() => {
+          expect(httpClientMock.get).toHaveBeenCalledWith(
+            'http://localhost:5000/api/products?page=0&size=25'
+          );
+          done();
+        });
+      });
+
+      it('should build URL with custom pagination', done => {
+        const mockResponse: PaginatedResponse<Product> = {
+          totalItems: 100,
+          page: 2,
+          size: 50,
+          results: [mockProduct]
+        };
+        httpClientMock.get.mockReturnValue(of(mockResponse));
+
+        service.getProducts({ page: 2, size: 50 }).subscribe(() => {
+          expect(httpClientMock.get).toHaveBeenCalledWith(
+            'http://localhost:5000/api/products?page=2&size=50'
+          );
+          done();
+        });
+      });
+
+      it('should include search parameter when provided', done => {
+        const mockResponse: PaginatedResponse<Product> = {
+          totalItems: 1,
+          page: 0,
+          size: 25,
+          results: [mockProduct]
+        };
+        httpClientMock.get.mockReturnValue(of(mockResponse));
+
+        service.getProducts({ search: 'motor' }).subscribe(() => {
+          expect(httpClientMock.get).toHaveBeenCalledWith(
+            'http://localhost:5000/api/products?page=0&size=25&search=motor'
+          );
+          done();
+        });
+      });
+
+      it('should URL-encode search parameter with special characters', done => {
+        const mockResponse: PaginatedResponse<Product> = {
+          totalItems: 0,
+          page: 0,
+          size: 25,
+          results: []
+        };
+        httpClientMock.get.mockReturnValue(of(mockResponse));
+
+        service.getProducts({ search: 'motor & prop' }).subscribe(() => {
+          expect(httpClientMock.get).toHaveBeenCalledWith(
+            'http://localhost:5000/api/products?page=0&size=25&search=motor%20%26%20prop'
+          );
+          done();
+        });
+      });
+
+      it('should trim whitespace from search parameter', done => {
+        const mockResponse: PaginatedResponse<Product> = {
+          totalItems: 1,
+          page: 0,
+          size: 25,
+          results: [mockProduct]
+        };
+        httpClientMock.get.mockReturnValue(of(mockResponse));
+
+        service.getProducts({ search: '  motor  ' }).subscribe(() => {
+          expect(httpClientMock.get).toHaveBeenCalledWith(
+            'http://localhost:5000/api/products?page=0&size=25&search=motor'
+          );
+          done();
+        });
+      });
+
+      it('should not include empty search parameter', done => {
+        const mockResponse: PaginatedResponse<Product> = {
+          totalItems: 2,
+          page: 0,
+          size: 25,
+          results: [mockProduct, mockProduct2]
+        };
+        httpClientMock.get.mockReturnValue(of(mockResponse));
+
+        service.getProducts({ search: '   ' }).subscribe(() => {
+          expect(httpClientMock.get).toHaveBeenCalledWith(
+            'http://localhost:5000/api/products?page=0&size=25'
+          );
+          done();
+        });
+      });
+
+      it('should include status parameter when set to enabled', done => {
+        const mockResponse: PaginatedResponse<Product> = {
+          totalItems: 1,
+          page: 0,
+          size: 25,
+          results: [mockProduct]
+        };
+        httpClientMock.get.mockReturnValue(of(mockResponse));
+
+        service.getProducts({ status: 'enabled' }).subscribe(() => {
+          expect(httpClientMock.get).toHaveBeenCalledWith(
+            'http://localhost:5000/api/products?page=0&size=25&status=enabled'
+          );
+          done();
+        });
+      });
+
+      it('should include status parameter when set to disabled', done => {
+        const mockResponse: PaginatedResponse<Product> = {
+          totalItems: 1,
+          page: 0,
+          size: 25,
+          results: [mockProduct2]
+        };
+        httpClientMock.get.mockReturnValue(of(mockResponse));
+
+        service.getProducts({ status: 'disabled' }).subscribe(() => {
+          expect(httpClientMock.get).toHaveBeenCalledWith(
+            'http://localhost:5000/api/products?page=0&size=25&status=disabled'
+          );
+          done();
+        });
+      });
+
+      it('should not include status parameter when set to all', done => {
+        const mockResponse: PaginatedResponse<Product> = {
+          totalItems: 2,
+          page: 0,
+          size: 25,
+          results: [mockProduct, mockProduct2]
+        };
+        httpClientMock.get.mockReturnValue(of(mockResponse));
+
+        service.getProducts({ status: 'all' }).subscribe(() => {
+          expect(httpClientMock.get).toHaveBeenCalledWith(
+            'http://localhost:5000/api/products?page=0&size=25'
+          );
+          done();
+        });
+      });
+
+      it('should include sort parameter', done => {
+        const mockResponse: PaginatedResponse<Product> = {
+          totalItems: 2,
+          page: 0,
+          size: 25,
+          results: [mockProduct, mockProduct2]
+        };
+        httpClientMock.get.mockReturnValue(of(mockResponse));
+
+        service.getProducts({ sort: 'name' }).subscribe(() => {
+          expect(httpClientMock.get).toHaveBeenCalledWith(
+            'http://localhost:5000/api/products?page=0&size=25&sort=name'
+          );
+          done();
+        });
+      });
+
+      it('should include order parameter', done => {
+        const mockResponse: PaginatedResponse<Product> = {
+          totalItems: 2,
+          page: 0,
+          size: 25,
+          results: [mockProduct2, mockProduct]
+        };
+        httpClientMock.get.mockReturnValue(of(mockResponse));
+
+        service.getProducts({ order: 'desc' }).subscribe(() => {
+          expect(httpClientMock.get).toHaveBeenCalledWith(
+            'http://localhost:5000/api/products?page=0&size=25&order=desc'
+          );
+          done();
+        });
+      });
+
+      it('should include both sort and order parameters', done => {
+        const mockResponse: PaginatedResponse<Product> = {
+          totalItems: 2,
+          page: 0,
+          size: 25,
+          results: [mockProduct, mockProduct2]
+        };
+        httpClientMock.get.mockReturnValue(of(mockResponse));
+
+        service.getProducts({ sort: 'sku', order: 'asc' }).subscribe(() => {
+          expect(httpClientMock.get).toHaveBeenCalledWith(
+            'http://localhost:5000/api/products?page=0&size=25&sort=sku&order=asc'
+          );
+          done();
+        });
+      });
+
+      it('should build complete URL with all parameters', done => {
+        const mockResponse: PaginatedResponse<Product> = {
+          totalItems: 1,
+          page: 1,
+          size: 10,
+          results: [mockProduct]
+        };
+        httpClientMock.get.mockReturnValue(of(mockResponse));
+
+        service
+          .getProducts({
+            page: 1,
+            size: 10,
+            search: 'motor',
+            status: 'enabled',
+            sort: 'quantity',
+            order: 'desc'
+          })
+          .subscribe(() => {
+            expect(httpClientMock.get).toHaveBeenCalledWith(
+              'http://localhost:5000/api/products?page=1&size=10&search=motor&status=enabled&sort=quantity&order=desc'
+            );
+            done();
+          });
+      });
+
+      it('should support createdOn sort field', done => {
+        const mockResponse: PaginatedResponse<Product> = {
+          totalItems: 2,
+          page: 0,
+          size: 25,
+          results: [mockProduct, mockProduct2]
+        };
+        httpClientMock.get.mockReturnValue(of(mockResponse));
+
+        service.getProducts({ sort: 'createdOn' }).subscribe(() => {
+          expect(httpClientMock.get).toHaveBeenCalledWith(
+            'http://localhost:5000/api/products?page=0&size=25&sort=createdOn'
+          );
+          done();
+        });
+      });
+
+      it('should support updatedOn sort field', done => {
+        const mockResponse: PaginatedResponse<Product> = {
+          totalItems: 2,
+          page: 0,
+          size: 25,
+          results: [mockProduct, mockProduct2]
+        };
+        httpClientMock.get.mockReturnValue(of(mockResponse));
+
+        service.getProducts({ sort: 'updatedOn' }).subscribe(() => {
+          expect(httpClientMock.get).toHaveBeenCalledWith(
+            'http://localhost:5000/api/products?page=0&size=25&sort=updatedOn'
+          );
+          done();
+        });
       });
     });
 
-    it('should use default pagination parameters when not provided', done => {
-      const mockResponse: PaginatedResponse<Product> = {
-        totalItems: 1,
-        page: 0,
-        size: 25,
-        results: [mockProduct]
-      };
-      httpClientMock.get.mockReturnValue(of(mockResponse));
+    describe('response handling', () => {
+      it('should return paginated response as-is when valid', done => {
+        const mockResponse: PaginatedResponse<Product> = {
+          totalItems: 2,
+          page: 0,
+          size: 25,
+          results: [mockProduct, mockProduct2]
+        };
+        httpClientMock.get.mockReturnValue(of(mockResponse));
 
-      service.getProducts().subscribe(response => {
-        expect(httpClientMock.get).toHaveBeenCalledWith(
-          'http://localhost:5000/api/products?page=0&size=25'
-        );
-        expect(response.results).toHaveLength(1);
-        done();
+        service.getProducts().subscribe(response => {
+          expect(response).toEqual(mockResponse);
+          expect(response.results).toHaveLength(2);
+          done();
+        });
+      });
+
+      it('should normalize raw array response to paginated format', done => {
+        // Simulate json-server returning raw array (middleware not applied)
+        const rawArrayResponse = [mockProduct, mockProduct2];
+        httpClientMock.get.mockReturnValue(of(rawArrayResponse));
+
+        service.getProducts().subscribe(response => {
+          expect(response.results).toHaveLength(2);
+          expect(response.totalItems).toBe(2);
+          expect(response.page).toBe(0);
+          expect(response.size).toBe(25);
+          expect(loggerMock.warn).toHaveBeenCalledWith(
+            'API returned raw array instead of paginated response. Wrapping automatically.'
+          );
+          done();
+        });
+      });
+
+      it('should use provided page/size for normalized raw array response', done => {
+        const rawArrayResponse = [mockProduct];
+        httpClientMock.get.mockReturnValue(of(rawArrayResponse));
+
+        service.getProducts({ page: 3, size: 10 }).subscribe(response => {
+          expect(response.page).toBe(3);
+          expect(response.size).toBe(10);
+          done();
+        });
+      });
+
+      it('should handle empty raw array response', done => {
+        const emptyArrayResponse: Product[] = [];
+        httpClientMock.get.mockReturnValue(of(emptyArrayResponse));
+
+        service.getProducts().subscribe(response => {
+          expect(response.results).toHaveLength(0);
+          expect(response.totalItems).toBe(0);
+          expect(response.page).toBe(0);
+          expect(response.size).toBe(25);
+          done();
+        });
+      });
+
+      it('should handle valid paginated response with additional properties', done => {
+        const responseWithExtras = {
+          totalItems: 2,
+          page: 0,
+          size: 25,
+          results: [mockProduct, mockProduct2],
+          extraProperty: 'should be ignored',
+          anotherExtra: 123
+        };
+        httpClientMock.get.mockReturnValue(of(responseWithExtras));
+
+        service.getProducts().subscribe(response => {
+          expect(response.results).toHaveLength(2);
+          expect(response.totalItems).toBe(2);
+          done();
+        });
       });
     });
 
-    it('should apply client-side search filter', done => {
-      const mockResponse: PaginatedResponse<Product> = {
-        totalItems: 2,
-        page: 0,
-        size: 25,
-        results: [mockProduct, mockProduct2]
-      };
-      httpClientMock.get.mockReturnValue(of(mockResponse));
+    describe('error handling', () => {
+      it('should throw error when response is missing results property', done => {
+        const invalidResponse = { totalItems: 2, page: 0, size: 25 }; // Missing results
+        httpClientMock.get.mockReturnValue(of(invalidResponse));
 
-      service.getProducts(0, 25, { search: 'motor' }).subscribe(response => {
-        expect(response.results).toHaveLength(1);
-        expect(response.results[0].sku).toBe('MTR-X500');
-        expect(response.totalItems).toBe(1); // totalItems updated to reflect filtered count
-        done();
+        service.getProducts().subscribe({
+          next: () => fail('Should have errored'),
+          error: error => {
+            expect(error.message).toContain('missing "results" property');
+            expect(loggerMock.error).toHaveBeenCalled();
+            done();
+          }
+        });
       });
-    });
 
-    it('should apply client-side status filter', done => {
-      const mockResponse: PaginatedResponse<Product> = {
-        totalItems: 2,
-        page: 0,
-        size: 25,
-        results: [mockProduct, mockProduct2]
-      };
-      httpClientMock.get.mockReturnValue(of(mockResponse));
+      it('should throw error when results is not an array', done => {
+        const invalidResponse = { totalItems: 2, page: 0, size: 25, results: 'not an array' };
+        httpClientMock.get.mockReturnValue(of(invalidResponse));
 
-      service.getProducts(0, 25, { status: 'enabled' }).subscribe(response => {
-        expect(response.results).toHaveLength(1);
-        expect(response.results[0].isEnabled).toBe(true);
-        expect(response.results[0].isStocked).toBe(true);
-        done();
+        service.getProducts().subscribe({
+          next: () => fail('Should have errored'),
+          error: error => {
+            expect(error.message).toContain('results" is not an array');
+            expect(loggerMock.error).toHaveBeenCalled();
+            done();
+          }
+        });
       });
-    });
 
-    it('should apply client-side sorting', done => {
-      const mockResponse: PaginatedResponse<Product> = {
-        totalItems: 2,
-        page: 0,
-        size: 25,
-        results: [mockProduct, mockProduct2]
-      };
-      httpClientMock.get.mockReturnValue(of(mockResponse));
+      it('should throw error when response is null', done => {
+        httpClientMock.get.mockReturnValue(of(null));
 
-      service.getProducts(0, 25, { sortBy: 'sku', sortOrder: 'asc' }).subscribe(response => {
-        expect(response.results).toHaveLength(2);
-        expect(response.results[0].sku).toBe('MTR-X500');
-        expect(response.results[1].sku).toBe('PROP-A450');
-        done();
+        service.getProducts().subscribe({
+          next: () => fail('Should have errored'),
+          error: error => {
+            expect(error.message).toContain('Invalid API response');
+            expect(loggerMock.error).toHaveBeenCalled();
+            done();
+          }
+        });
       });
-    });
 
-    it('should not modify response when no filters provided', done => {
-      const mockResponse: PaginatedResponse<Product> = {
-        totalItems: 2,
-        page: 0,
-        size: 25,
-        results: [mockProduct, mockProduct2]
-      };
-      httpClientMock.get.mockReturnValue(of(mockResponse));
+      it('should throw error when response is undefined', done => {
+        httpClientMock.get.mockReturnValue(of(undefined));
 
-      service.getProducts(0, 25, {}).subscribe(response => {
-        expect(response).toEqual(mockResponse);
-        expect(response.totalItems).toBe(2);
-        done();
+        service.getProducts().subscribe({
+          next: () => fail('Should have errored'),
+          error: error => {
+            expect(error.message).toContain('Invalid API response');
+            expect(loggerMock.error).toHaveBeenCalled();
+            done();
+          }
+        });
+      });
+
+      it('should throw error when response is a primitive string', done => {
+        httpClientMock.get.mockReturnValue(of('not a valid response' as any));
+
+        service.getProducts().subscribe({
+          next: () => fail('Should have errored'),
+          error: error => {
+            expect(error.message).toContain('Invalid API response');
+            done();
+          }
+        });
+      });
+
+      it('should throw error when response is a number', done => {
+        httpClientMock.get.mockReturnValue(of(42 as any));
+
+        service.getProducts().subscribe({
+          next: () => fail('Should have errored'),
+          error: error => {
+            expect(error.message).toContain('Invalid API response');
+            done();
+          }
+        });
+      });
+
+      it('should throw error when results property is null', done => {
+        const invalidResponse = { totalItems: 2, page: 0, size: 25, results: null };
+        httpClientMock.get.mockReturnValue(of(invalidResponse));
+
+        service.getProducts().subscribe({
+          next: () => fail('Should have errored'),
+          error: error => {
+            expect(error.message).toContain('not an array');
+            expect(loggerMock.error).toHaveBeenCalled();
+            done();
+          }
+        });
       });
     });
   });
@@ -271,7 +604,7 @@ describe('ProductService', () => {
 
   describe('enableProduct', () => {
     it('should call POST /products/:id/enable', done => {
-      const enabledProduct = { ...mockProduct, enabled: true };
+      const enabledProduct = { ...mockProduct, isEnabled: true };
       httpClientMock.post.mockReturnValue(of(enabledProduct));
 
       service.enableProduct('1').subscribe(product => {
@@ -279,7 +612,7 @@ describe('ProductService', () => {
           'http://localhost:5000/api/products/1/enable',
           {}
         );
-        expect(product.enabled).toBe(true);
+        expect(product.isEnabled).toBe(true);
         done();
       });
     });
@@ -287,7 +620,7 @@ describe('ProductService', () => {
 
   describe('disableProduct', () => {
     it('should call POST /products/:id/disable', done => {
-      const disabledProduct = { ...mockProduct, enabled: false };
+      const disabledProduct = { ...mockProduct, isEnabled: false };
       httpClientMock.post.mockReturnValue(of(disabledProduct));
 
       service.disableProduct('1').subscribe(product => {
@@ -295,7 +628,7 @@ describe('ProductService', () => {
           'http://localhost:5000/api/products/1/disable',
           {}
         );
-        expect(product.enabled).toBe(false);
+        expect(product.isEnabled).toBe(false);
         done();
       });
     });

@@ -31,6 +31,20 @@
     </div>
   </div>
 
+  <!-- Action Message Feedback -->
+  <div
+    *ngIf="actionMessage"
+    class="action-message"
+    [ngClass]="actionMessageType"
+    role="status"
+    aria-live="polite"
+  >
+    <span class="message-text">{{ actionMessage }}</span>
+    <button (click)="clearActionMessage()" class="dismiss-btn" aria-label="Dismiss message">
+      &times;
+    </button>
+  </div>
+
   <!-- Error State -->
   <div *ngIf="error" class="error-state" role="alert">
     <div class="error-icon">⚠</div>
@@ -133,7 +147,7 @@
               disabled
               aria-label="View product details (coming soon)"
             >
-              👁
+              <span class="btn-icon">V</span>
             </button>
             <button
               class="action-btn"
@@ -141,23 +155,56 @@
               disabled
               aria-label="Edit product (coming soon)"
             >
-              ✏️
+              <span class="btn-icon">E</span>
             </button>
             <button
-              class="action-btn"
-              title="Coming in F-P5"
-              disabled
-              aria-label="Toggle enable/disable (coming soon)"
+              class="action-btn action-btn-toggle"
+              [class.loading]="product.actionLoading && product.actionType !== 'delete'"
+              [disabled]="product.actionLoading || !product.isStocked"
+              (click)="toggleEnabled(product)"
+              [title]="
+                !product.isStocked
+                  ? 'Cannot toggle discontinued product'
+                  : product.isEnabled
+                    ? 'Disable product'
+                    : 'Enable product'
+              "
+              [attr.aria-label]="
+                product.isEnabled
+                  ? 'Disable product ' + product.sku
+                  : 'Enable product ' + product.sku
+              "
             >
-              🔄
+              <span
+                *ngIf="product.actionLoading && product.actionType !== 'delete'"
+                class="spinner-small"
+              ></span>
+              <span
+                *ngIf="!(product.actionLoading && product.actionType !== 'delete')"
+                class="btn-icon"
+              >
+                {{ product.isEnabled ? 'D' : 'E' }}
+              </span>
+              <span class="btn-text">{{ product.isEnabled ? 'Disable' : 'Enable' }}</span>
             </button>
             <button
-              class="action-btn"
-              title="Coming in F-P6"
-              disabled
-              aria-label="Delete product (coming soon)"
+              class="action-btn action-btn-delete"
+              [class.loading]="product.actionLoading && product.actionType === 'delete'"
+              [disabled]="product.actionLoading"
+              (click)="confirmDelete(product)"
+              title="Delete product"
+              [attr.aria-label]="'Delete product ' + product.sku"
             >
-              🗑
+              <span
+                *ngIf="product.actionLoading && product.actionType === 'delete'"
+                class="spinner-small"
+              ></span>
+              <span
+                *ngIf="!(product.actionLoading && product.actionType === 'delete')"
+                class="btn-icon"
+                >X</span
+              >
+              <span class="btn-text">Delete</span>
             </button>
           </td>
         </tr>
