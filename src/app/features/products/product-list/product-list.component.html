@@ -68,54 +68,54 @@
           <th
             (click)="onSort('sku')"
             class="sortable"
-            [class.active]="sortBy === 'sku'"
+            [class.active]="queryOptions().sort === 'sku'"
             tabindex="0"
             role="button"
             aria-label="Sort by SKU"
           >
             SKU
-            <span class="sort-indicator" *ngIf="sortBy === 'sku'">
-              {{ sortOrder === 'asc' ? '▲' : '▼' }}
+            <span class="sort-indicator" *ngIf="queryOptions().sort === 'sku'">
+              {{ queryOptions().order === 'asc' ? '▲' : '▼' }}
             </span>
           </th>
           <th
             (click)="onSort('name')"
             class="sortable"
-            [class.active]="sortBy === 'name'"
+            [class.active]="queryOptions().sort === 'name'"
             tabindex="0"
             role="button"
             aria-label="Sort by name"
           >
             Name
-            <span class="sort-indicator" *ngIf="sortBy === 'name'">
-              {{ sortOrder === 'asc' ? '▲' : '▼' }}
+            <span class="sort-indicator" *ngIf="queryOptions().sort === 'name'">
+              {{ queryOptions().order === 'asc' ? '▲' : '▼' }}
             </span>
           </th>
           <th
             (click)="onSort('quantity')"
             class="sortable"
-            [class.active]="sortBy === 'quantity'"
+            [class.active]="queryOptions().sort === 'quantity'"
             tabindex="0"
             role="button"
             aria-label="Sort by quantity"
           >
             Quantity
-            <span class="sort-indicator" *ngIf="sortBy === 'quantity'">
-              {{ sortOrder === 'asc' ? '▲' : '▼' }}
+            <span class="sort-indicator" *ngIf="queryOptions().sort === 'quantity'">
+              {{ queryOptions().order === 'asc' ? '▲' : '▼' }}
             </span>
           </th>
           <th>Status</th>
           <th
             (click)="onSort('updatedOn')"
             class="sortable"
-            [class.active]="sortBy === 'updatedOn'"
+            [class.active]="queryOptions().sort === 'updatedOn'"
             tabindex="0"
             role="button"
             aria-label="Sort by last updated"
           >
             Updated
-            <span class="sort-indicator" *ngIf="sortBy === 'updatedOn'">
-              {{ sortOrder === 'asc' ? '▲' : '▼' }}
+            <span class="sort-indicator" *ngIf="queryOptions().sort === 'updatedOn'">
+              {{ queryOptions().order === 'asc' ? '▲' : '▼' }}
             </span>
           </th>
           <th>Actions</th>
@@ -211,8 +211,8 @@
     aria-label="Pagination"
   >
     <button
-      (click)="onPageChange(currentPage - 1)"
-      [disabled]="currentPage === 0"
+      (click)="onPageChange((queryOptions().page ?? 0) - 1)"
+      [disabled]="(queryOptions().page ?? 0) === 0"
       class="pagination-btn"
       aria-label="Previous page"
     >
@@ -222,17 +222,17 @@
     <button
       *ngFor="let page of pageNumbers"
       (click)="onPageChange(page)"
-      [class.active]="currentPage === page"
+      [class.active]="(queryOptions().page ?? 0) === page"
       class="pagination-btn page-number"
       [attr.aria-label]="'Go to page ' + (page + 1)"
-      [attr.aria-current]="currentPage === page ? 'page' : null"
+      [attr.aria-current]="(queryOptions().page ?? 0) === page ? 'page' : null"
     >
       {{ page + 1 }}
     </button>
 
     <button
-      (click)="onPageChange(currentPage + 1)"
-      [disabled]="currentPage >= totalPages - 1"
+      (click)="onPageChange((queryOptions().page ?? 0) + 1)"
+      [disabled]="(queryOptions().page ?? 0) >= totalPages - 1"
       class="pagination-btn"
       aria-label="Next page"
     >

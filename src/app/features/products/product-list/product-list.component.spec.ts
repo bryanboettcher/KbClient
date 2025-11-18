@@ -5,6 +5,8 @@ import { ProductListComponent } from './product-list.component';
 import { ProductService } from '../../../services/product.service';
 import { Product, PaginatedResponse } from '../../../models';
 import { NotificationService } from '../../../services/notification.service';
+import { ProductStateStore } from '../../../stores/product-state.store';
+import { signal } from '@angular/core';
 
 // Extended product interface for testing action state
 interface ProductWithState extends Product {
@@ -17,6 +19,7 @@ describe('ProductListComponent', () => {
   let fixture: ComponentFixture<ProductListComponent>;
   let mockProductService: jest.Mocked<ProductService>;
   let mockNotificationService: jest.Mocked<NotificationService>;
+  let mockProductStateStore: any;
 
   const mockProduct1: Product = {
     productId: '1',
@@ -72,11 +75,27 @@ describe('ProductListComponent', () => {
       info: jest.fn()
     } as any;
 
+    // Create mock ProductStateStore
+    mockProductStateStore = {
+      queryOptions: signal({
+        page: 0,
+        size: 25,
+        sort: 'sku',
+        order: 'asc'
+      }),
+      updateFilters: jest.fn(),
+      updateSort: jest.fn(),
+      updatePagination: jest.fn(),
+      updateSearch: jest.fn(),
+      reset: jest.fn()
+    };
+
     await TestBed.configureTestingModule({
       imports: [ProductListComponent],
       providers: [
         { provide: ProductService, useValue: mockProductService },
         { provide: NotificationService, useValue: mockNotificationService },
+        { provide: ProductStateStore, useValue: mockProductStateStore },
         { provide: ActivatedRoute, useValue: {} }
       ]
     }).compileComponents();
@@ -112,13 +131,12 @@ describe('ProductListComponent', () => {
     it('should initialize with default values', () => {
       expect(component.products).toEqual([]);
       expect(component.totalItems).toBe(0);
-      expect(component.currentPage).toBe(0);
-      expect(component.pageSize).toBe(25);
       expect(component.loading).toBe(false);
       expect(component.error).toBeNull();
-      expect(component.statusFilter).toBeNull();
-      expect(component.sortBy).toBe('sku');
-      expect(component.sortOrder).toBe('asc');
+      expect(component.queryOptions().page).toBe(0);
+      expect(component.queryOptions().size).toBe(25);
+      expect(component.queryOptions().sort).toBe('sku');
+      expect(component.queryOptions().order).toBe('asc');
     });
   });
 
@@ -285,10 +303,22 @@ describe('ProductListComponent', () => {
         // Clear the initial call from ngOnInit
         mockProductService.getProducts.mockClear();
 
+        // Update mock store signal when updateSearch is called
+        mockProductStateStore.updateSearch.mockImplementation((query: string) => {
+          mockProductStateStore.queryOptions.set({
+            page: 0,
+            size: 25,
+            sort: 'sku',
+            order: 'asc',
+            search: query
+          });
+        });
+
         component.searchControl.setValue('motor');
 
         // Wait for debounce (300ms) + processing
         setTimeout(() => {
+          expect(mockProductStateStore.updateSearch).toHaveBeenCalledWith('motor');
           expect(mockProductService.getProducts).toHaveBeenCalledWith(
             expect.objectContaining({
               page: 0,
@@ -303,13 +333,12 @@ describe('ProductListComponent', () => {
 
     it('should reset to first page when searching', done => {
       mockProductService.getProducts.mockReturnValue(of(mockResponse));
-      component.currentPage = 2;
 
       component.ngOnInit();
       component.searchControl.setValue('test');
 
       setTimeout(() => {
-        expect(component.currentPage).toBe(0);
+        expect(mockProductStateStore.updateSearch).toHaveBeenCalledWith('test');
         done();
       }, 350);
     });
@@ -326,14 +355,8 @@ describe('ProductListComponent', () => {
       component.onStatusFilterChange(event);
 
       setTimeout(() => {
-        expect(component.statusFilter).toBe('enabled');
-        expect(mockProductService.getProducts).toHaveBeenCalledWith(
-          expect.objectContaining({
-            page: 0,
-            size: 25,
-            status: 'enabled'
-          })
-        );
+        expect(mockProductStateStore.updateFilters).toHaveBeenCalledWith('enabled');
+        expect(mockProductService.getProducts).toHaveBeenCalled();
         done();
       }, 50);
     });
@@ -348,14 +371,13 @@ describe('ProductListComponent', () => {
       component.onStatusFilterChange(event);
 
       setTimeout(() => {
-        expect(component.statusFilter).toBe('disabled');
+        expect(mockProductStateStore.updateFilters).toHaveBeenCalledWith('disabled');
         done();
       }, 50);
     });
 
     it('should clear status filter when "all" selected', done => {
       mockProductService.getProducts.mockReturnValue(of(mockResponse));
-      component.statusFilter = 'enabled';
 
       const event = {
         target: { value: 'all' }
@@ -364,14 +386,13 @@ describe('ProductListComponent', () => {
       component.onStatusFilterChange(event);
 
       setTimeout(() => {
-        expect(component.statusFilter).toBeNull();
+        expect(mockProductStateStore.updateFilters).toHaveBeenCalledWith(null);
         done();
       }, 50);
     });
 
     it('should reset to first page when filtering by status', done => {
       mockProductService.getProducts.mockReturnValue(of(mockResponse));
-      component.currentPage = 3;
 
       const event = {
         target: { value: 'disabled' }
@@ -380,7 +401,8 @@ describe('ProductListComponent', () => {
       component.onStatusFilterChange(event);
 
       setTimeout(() => {
-        expect(component.currentPage).toBe(0);
+        // updateFilters internally resets to page 0 in the store
+        expect(mockProductStateStore.updateFilters).toHaveBeenCalledWith('disabled');
         done();
       }, 50);
     });
@@ -393,38 +415,30 @@ describe('ProductListComponent', () => {
       component.onSort('name');
 
       setTimeout(() => {
-        expect(component.sortBy).toBe('name');
-        expect(component.sortOrder).toBe('asc');
-        expect(mockProductService.getProducts).toHaveBeenCalledWith(
-          expect.objectContaining({ sort: 'name', order: 'asc' })
-        );
+        expect(mockProductStateStore.updateSort).toHaveBeenCalledWith('name', 'asc');
+        expect(mockProductService.getProducts).toHaveBeenCalled();
         done();
       }, 50);
     });
 
     it('should toggle sort order when clicking same column', done => {
       mockProductService.getProducts.mockReturnValue(of(mockResponse));
-      component.sortBy = 'sku';
-      component.sortOrder = 'asc';
 
       component.onSort('sku');
 
       setTimeout(() => {
-        expect(component.sortOrder).toBe('desc');
+        expect(mockProductStateStore.updateSort).toHaveBeenCalledWith('sku', 'desc');
         done();
       }, 50);
     });
 
     it('should default to ascending when sorting new column', done => {
       mockProductService.getProducts.mockReturnValue(of(mockResponse));
-      component.sortBy = 'sku';
-      component.sortOrder = 'desc';
 
       component.onSort('quantity');
 
       setTimeout(() => {
-        expect(component.sortBy).toBe('quantity');
-        expect(component.sortOrder).toBe('asc');
+        expect(mockProductStateStore.updateSort).toHaveBeenCalledWith('quantity', 'asc');
         done();
       }, 50);
     });
@@ -434,38 +448,32 @@ describe('ProductListComponent', () => {
     it('should change pages correctly', done => {
       mockProductService.getProducts.mockReturnValue(of(mockResponse));
       component.totalItems = 100;
-      component.pageSize = 25;
 
       component.onPageChange(2);
 
       setTimeout(() => {
-        expect(component.currentPage).toBe(2);
-        expect(mockProductService.getProducts).toHaveBeenCalledWith(
-          expect.objectContaining({ page: 2, size: 25 })
-        );
+        expect(mockProductStateStore.updatePagination).toHaveBeenCalledWith(2);
+        expect(mockProductService.getProducts).toHaveBeenCalled();
         done();
       }, 50);
     });
 
     it('should not allow navigation to negative page', () => {
-      const initialPage = component.currentPage;
+      mockProductService.getProducts.mockReturnValue(of(mockResponse));
       component.onPageChange(-1);
-      expect(component.currentPage).toBe(initialPage);
+      expect(mockProductStateStore.updatePagination).not.toHaveBeenCalled();
     });
 
     it('should not allow navigation beyond total pages', () => {
       component.totalItems = 50;
-      component.pageSize = 25;
-      component.currentPage = 0;
 
       component.onPageChange(10); // Beyond totalPages (2)
 
-      expect(component.currentPage).toBe(0); // Should not change
+      expect(mockProductStateStore.updatePagination).not.toHaveBeenCalled();
     });
 
     it('should calculate total pages correctly', () => {
       component.totalItems = 100;
-      component.pageSize = 25;
       expect(component.totalPages).toBe(4);
 
       component.totalItems = 95;
@@ -477,8 +485,12 @@ describe('ProductListComponent', () => {
 
     it('should generate page numbers for pagination', () => {
       component.totalItems = 200;
-      component.pageSize = 25;
-      component.currentPage = 3;
+      mockProductStateStore.queryOptions.set({
+        page: 3,
+        size: 25,
+        sort: 'sku',
+        order: 'asc'
+      });
 
       const pages = component.pageNumbers;
       expect(pages).toContain(3);
@@ -536,12 +548,15 @@ describe('ProductListComponent', () => {
     it('should call service with correct parameters', done => {
       mockProductService.getProducts.mockReturnValue(of(mockResponse));
 
-      component.currentPage = 1;
-      component.pageSize = 50;
-      component.searchControl.setValue('test');
-      component.statusFilter = 'enabled';
-      component.sortBy = 'quantity';
-      component.sortOrder = 'desc';
+      // Update mock store state
+      mockProductStateStore.queryOptions.set({
+        page: 1,
+        size: 50,
+        search: 'test',
+        status: 'enabled',
+        sort: 'quantity',
+        order: 'desc'
+      });
 
       component.loadProducts();
 
@@ -561,8 +576,13 @@ describe('ProductListComponent', () => {
     it('should omit filters when not set', done => {
       mockProductService.getProducts.mockReturnValue(of(mockResponse));
 
-      component.searchControl.setValue('');
-      component.statusFilter = null;
+      // Default mock store state has no search/status
+      mockProductStateStore.queryOptions.set({
+        page: 0,
+        size: 25,
+        sort: 'sku',
+        order: 'asc'
+      });
 
       component.loadProducts();
 
@@ -785,15 +805,22 @@ describe('ProductListComponent', () => {
       mockProductService.getProducts.mockReturnValue(of(mockResponse));
       mockProductService.deleteProduct.mockReturnValue(of(void 0));
 
+      // Set mock store to page 1
+      mockProductStateStore.queryOptions.set({
+        page: 1,
+        size: 25,
+        sort: 'sku',
+        order: 'asc'
+      });
+
       const product = { ...mockProduct1 };
       component.products = [product];
       component.totalItems = 26; // More than one page total
-      component.currentPage = 1; // On second page
 
       component.confirmDelete(product);
 
       setTimeout(() => {
-        expect(component.currentPage).toBe(0); // Should go back to first page
+        expect(mockProductStateStore.updatePagination).toHaveBeenCalledWith(0);
         expect(mockProductService.getProducts).toHaveBeenCalled();
         done();
       }, 50);
@@ -804,12 +831,11 @@ describe('ProductListComponent', () => {
 
       component.products = [mockProduct1, mockProduct2];
       component.totalItems = 2;
-      component.currentPage = 0;
 
       component.confirmDelete({ ...mockProduct1 });
 
       setTimeout(() => {
-        expect(component.currentPage).toBe(0);
+        expect(mockProductStateStore.updatePagination).not.toHaveBeenCalled();
         expect(component.products.length).toBe(1);
         done();
       }, 50);

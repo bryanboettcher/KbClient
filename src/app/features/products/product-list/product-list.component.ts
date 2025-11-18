@@ -4,8 +4,9 @@ import { RouterModule } from '@angular/router';
 import { FormControl, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
 import { ProductService } from '../../../services/product.service';
-import { Product, ProductQueryOptions } from '../../../models';
+import { Product } from '../../../models';
 import { NotificationService } from '../../../services/notification.service';
+import { ProductStateStore } from '../../../stores/product-state.store';
 
 // PrimeNG imports
 import { ButtonModule } from 'primeng/button';
@@ -26,27 +27,29 @@ interface ProductWithState extends Product {
 export class ProductListComponent implements OnInit {
   products: ProductWithState[] = [];
   totalItems = 0;
-  currentPage = 0;
-  pageSize = 25;
   loading = false;
   error: string | null = null;
 
   searchControl = new FormControl('');
-  statusFilter: 'enabled' | 'disabled' | null = null;
-  sortBy: 'sku' | 'name' | 'quantity' | 'updatedOn' = 'sku';
-  sortOrder: 'asc' | 'desc' = 'asc';
 
   private readonly productService = inject(ProductService);
   private readonly notificationService = inject(NotificationService);
+  private readonly productStateStore = inject(ProductStateStore);
+
+  // Expose store's computed queryOptions for component use
+  readonly queryOptions = this.productStateStore.queryOptions;
 
   ngOnInit(): void {
+    // Initialize search control with stored value
+    this.searchControl.setValue(this.queryOptions().search || '');
+
     this.loadProducts();
 
     // Debounced search
     this.searchControl.valueChanges
       .pipe(debounceTime(300), distinctUntilChanged())
-      .subscribe(() => {
-        this.currentPage = 0; // Reset to first page on search
+      .subscribe(value => {
+        this.productStateStore.updateSearch(value || '');
         this.loadProducts();
       });
   }
@@ -55,25 +58,7 @@ export class ProductListComponent implements OnInit {
     this.loading = true;
     this.error = null;
 
-    const options: ProductQueryOptions = {
-      page: this.currentPage,
-      size: this.pageSize
-    };
-
-    if (this.searchControl.value) {
-      options.search = this.searchControl.value;
-    }
-
-    if (this.statusFilter) {
-      options.status = this.statusFilter;
-    }
-
-    if (this.sortBy) {
-      options.sort = this.sortBy;
-      options.order = this.sortOrder;
-    }
-
-    this.productService.getProducts(options).subscribe({
+    this.productService.getProducts(this.queryOptions()).subscribe({
       next: response => {
         this.products = response.results;
         this.totalItems = response.totalItems;
@@ -93,26 +78,17 @@ export class ProductListComponent implements OnInit {
     const target = event.target as HTMLSelectElement;
     const value = target.value;
 
-    if (value === 'all') {
-      this.statusFilter = null;
-    } else {
-      this.statusFilter = value as 'enabled' | 'disabled';
-    }
-
-    this.currentPage = 0; // Reset to first page on filter change
+    const status = value === 'all' ? null : (value as 'enabled' | 'disabled');
+    this.productStateStore.updateFilters(status);
     this.loadProducts();
   }
 
   onSort(column: 'sku' | 'name' | 'quantity' | 'updatedOn'): void {
-    if (this.sortBy === column) {
-      // Toggle sort order
-      this.sortOrder = this.sortOrder === 'asc' ? 'desc' : 'asc';
-    } else {
-      // New column, default to ascending
-      this.sortBy = column;
-      this.sortOrder = 'asc';
-    }
+    const currentOptions = this.queryOptions();
+    const newOrder =
+      currentOptions.sort === column && currentOptions.order === 'asc' ? 'desc' : 'asc';
 
+    this.productStateStore.updateSort(column, newOrder);
     this.loadProducts();
   }
 
@@ -121,28 +97,30 @@ export class ProductListComponent implements OnInit {
       return;
     }
 
-    this.currentPage = page;
+    this.productStateStore.updatePagination(page);
     this.loadProducts();
   }
 
   get totalPages(): number {
-    return Math.ceil(this.totalItems / this.pageSize);
+    const size = this.queryOptions().size ?? 25;
+    return Math.ceil(this.totalItems / size);
   }
 
   get pageNumbers(): number[] {
     const pages: number[] = [];
     const maxPagesToShow = 5;
     const halfRange = Math.floor(maxPagesToShow / 2);
+    const currentPage = this.queryOptions().page ?? 0;
 
-    let startPage = Math.max(0, this.currentPage - halfRange);
-    let endPage = Math.min(this.totalPages - 1, this.currentPage + halfRange);
+    let startPage = Math.max(0, currentPage - halfRange);
+    let endPage = Math.min(this.totalPages - 1, currentPage + halfRange);
 
     // Adjust if we're at the beginning or end
-    if (this.currentPage < halfRange) {
+    if (currentPage < halfRange) {
       endPage = Math.min(this.totalPages - 1, maxPagesToShow - 1);
     }
 
-    if (this.currentPage > this.totalPages - halfRange - 1) {
+    if (currentPage > this.totalPages - halfRange - 1) {
       startPage = Math.max(0, this.totalPages - maxPagesToShow);
     }
 
@@ -243,8 +221,9 @@ export class ProductListComponent implements OnInit {
         this.notificationService.success(`Product "${product.sku}" has been deleted successfully.`);
 
         // If we deleted the last item on the page, go to previous page
-        if (this.products.length === 0 && this.currentPage > 0) {
-          this.currentPage--;
+        const currentPage = this.queryOptions().page ?? 0;
+        if (this.products.length === 0 && currentPage > 0) {
+          this.productStateStore.updatePagination(currentPage - 1);
           this.loadProducts();
         }
       },
