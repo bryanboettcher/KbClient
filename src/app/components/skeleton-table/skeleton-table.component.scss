@@ -1,0 +1,115 @@
+.skeleton-table-container {
+  overflow-x: auto;
+  border: 1px solid #e5e7eb;
+  border-radius: 0.5rem;
+  margin-bottom: 2rem;
+
+  .table-container {
+    .skeleton-table {
+      width: 100%;
+      border-collapse: collapse;
+      background-color: white;
+
+      thead {
+        background-color: #f9fafb;
+        border-bottom: 2px solid #e5e7eb;
+
+        th {
+          padding: 0.75rem 1rem;
+          text-align: left;
+          font-size: 0.875rem;
+          font-weight: 600;
+          color: #374151;
+        }
+      }
+
+      tbody {
+        .skeleton-row {
+          border-bottom: 1px solid #e5e7eb;
+
+          &:last-child {
+            border-bottom: none;
+          }
+
+          td {
+            padding: 1rem;
+            vertical-align: middle;
+
+            &.sku-cell {
+              width: 120px;
+            }
+
+            &.name-cell {
+              width: auto;
+              max-width: 300px;
+            }
+
+            &.quantity-cell {
+              width: 100px;
+              text-align: right;
+            }
+
+            &.status-cell {
+              width: 120px;
+            }
+
+            &.date-cell {
+              width: 120px;
+            }
+
+            &.actions-cell {
+              width: 180px;
+              white-space: nowrap;
+
+              .skeleton-actions {
+                display: inline-flex;
+                gap: 0.5rem;
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
+
+// Screen reader only class
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border-width: 0;
+}
+
+// Responsive design
+@media (max-width: 768px) {
+  .skeleton-table-container {
+    .table-container {
+      .skeleton-table {
+        font-size: 0.75rem;
+
+        thead th,
+        tbody td {
+          padding: 0.5rem;
+        }
+
+        tbody td {
+          &.name-cell {
+            max-width: 150px;
+          }
+
+          &.actions-cell {
+            .skeleton-actions {
+              gap: 0.25rem;
+            }
+          }
+        }
+      }
+    }
+  }
+}

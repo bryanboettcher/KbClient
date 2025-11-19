@@ -39,29 +39,40 @@
 
   <!-- Error State -->
   <div *ngIf="error" class="error-state" role="alert">
-    <div class="error-icon">⚠</div>
+    <i class="pi pi-exclamation-circle error-icon" aria-hidden="true"></i>
     <div class="error-content">
-      <h3>Error Loading Products</h3>
+      <h3>Unable to Load Products</h3>
       <p>{{ error }}</p>
-      <button (click)="loadProducts()" class="btn-retry">Try Again</button>
+      <button (click)="loadProducts()" class="btn-retry">
+        <i class="pi pi-refresh" aria-hidden="true"></i>
+        Retry
+      </button>
     </div>
   </div>
 
-  <!-- Loading State -->
-  <div *ngIf="loading && !error" class="loading-state" aria-live="polite" aria-busy="true">
-    <div class="spinner"></div>
-    <p>Loading products...</p>
+  <!-- Loading State with Skeleton -->
+  <div *ngIf="loading && !error">
+    <span class="sr-only" aria-live="polite" aria-busy="true">Loading products...</span>
+    <app-skeleton-table [rows]="10" [columns]="6"></app-skeleton-table>
   </div>
 
   <!-- Empty State -->
-  <div *ngIf="!loading && !error && products.length === 0" class="empty-state">
-    <div class="empty-icon">📦</div>
+  <div *ngIf="!loading && !error && products.length === 0" class="empty-state" role="status">
+    <i class="pi pi-inbox empty-icon" aria-hidden="true"></i>
     <h3>No Products Found</h3>
-    <p>Try adjusting your filters or search criteria.</p>
+    <p class="empty-description">Try adjusting your filters or search criteria.</p>
+    <p-button
+      *ngIf="queryOptions().search || queryOptions().status"
+      (onClick)="searchControl.setValue(''); productStateStore.updateFilters(null); loadProducts()"
+      label="Clear Filters"
+      icon="pi pi-filter-slash"
+      styleClass="p-button-text"
+      [outlined]="true"
+    ></p-button>
   </div>
 
   <!-- Products Table -->
-  <div *ngIf="!loading && !error && products.length > 0" class="table-container">
+  <div *ngIf="!loading && !error && products.length > 0" class="table-container fade-in">
     <table class="products-table">
       <thead>
         <tr>

@@ -11,6 +11,9 @@ import { ProductStateStore } from '../../../stores/product-state.store';
 // PrimeNG imports
 import { ButtonModule } from 'primeng/button';
 
+// Skeleton components
+import { SkeletonTableComponent } from '../../../components/skeleton-table/skeleton-table.component';
+
 // Extended product with UI state for row-level actions
 interface ProductWithState extends Product {
   actionLoading?: boolean;
@@ -20,7 +23,14 @@ interface ProductWithState extends Product {
 @Component({
   selector: 'app-product-list',
   standalone: true,
-  imports: [CommonModule, RouterModule, FormsModule, ReactiveFormsModule, ButtonModule],
+  imports: [
+    CommonModule,
+    RouterModule,
+    FormsModule,
+    ReactiveFormsModule,
+    ButtonModule,
+    SkeletonTableComponent
+  ],
   templateUrl: './product-list.component.html',
   styleUrls: ['./product-list.component.scss']
 })
@@ -34,7 +44,7 @@ export class ProductListComponent implements OnInit {
 
   private readonly productService = inject(ProductService);
   private readonly notificationService = inject(NotificationService);
-  private readonly productStateStore = inject(ProductStateStore);
+  readonly productStateStore = inject(ProductStateStore);
 
   // Expose store's computed queryOptions for component use
   readonly queryOptions = this.productStateStore.queryOptions;

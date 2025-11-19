@@ -155,9 +155,12 @@ describe('ProductListComponent', () => {
       component.loadProducts();
       fixture.detectChanges();
 
-      const loadingElement = fixture.nativeElement.querySelector('.loading-state');
-      expect(loadingElement).toBeTruthy();
-      expect(loadingElement.textContent).toContain('Loading products');
+      const skeletonTable = fixture.nativeElement.querySelector('app-skeleton-table');
+      expect(skeletonTable).toBeTruthy();
+
+      const srText = fixture.nativeElement.querySelector('.sr-only');
+      expect(srText).toBeTruthy();
+      expect(srText.textContent).toContain('Loading products');
       done();
     });
 
@@ -251,7 +254,7 @@ describe('ProductListComponent', () => {
 
         const errorElement = fixture.nativeElement.querySelector('.error-state');
         expect(errorElement).toBeTruthy();
-        expect(errorElement.textContent).toContain('Error Loading Products');
+        expect(errorElement.textContent).toContain('Unable to Load Products');
         done();
       }, 100);
     });
