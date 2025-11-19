@@ -1,5 +1,21 @@
 <div class="container">
-  <p-card [header]="pageTitle">
+  <!-- Page Header -->
+  <div class="page-header">
+    <div class="header-top">
+      <button
+        type="button"
+        class="back-button"
+        (click)="onCancel()"
+        aria-label="Back to product list"
+      >
+        <i class="pi pi-arrow-left" aria-hidden="true"></i>
+        <span>Back to Products</span>
+      </button>
+    </div>
+    <h1>{{ pageTitle }}</h1>
+  </div>
+
+  <div class="form-wrapper">
     <form
       [formGroup]="form"
       (ngSubmit)="onSubmit()"
@@ -242,25 +258,28 @@
           <label for="isAvailable">Is Available</label>
         </div>
       </div>
-
-      <!-- Form Actions -->
-      <div class="form-actions">
-        <p-button
-          type="submit"
-          [label]="mode === 'create' ? 'Create Product' : 'Save Changes'"
-          icon="pi pi-check"
-          [disabled]="form.invalid || loading"
-          [loading]="loading"
-        ></p-button>
-        <p-button
-          type="button"
-          label="Cancel"
-          icon="pi pi-times"
-          severity="secondary"
-          (onClick)="onCancel()"
-          [disabled]="loading"
-        ></p-button>
-      </div>
     </form>
-  </p-card>
+  </div>
+
+  <!-- Sticky Action Bar -->
+  <div class="action-bar">
+    <div class="action-bar-content">
+      <p-button
+        type="button"
+        label="Cancel"
+        icon="pi pi-times"
+        severity="secondary"
+        (onClick)="onCancel()"
+        [disabled]="loading"
+      ></p-button>
+      <p-button
+        type="submit"
+        [label]="mode === 'create' ? 'Create Product' : 'Save Changes'"
+        icon="pi pi-check"
+        [disabled]="form.invalid || loading"
+        [loading]="loading"
+        (onClick)="onSubmit()"
+      ></p-button>
+    </div>
+  </div>
 </div>
